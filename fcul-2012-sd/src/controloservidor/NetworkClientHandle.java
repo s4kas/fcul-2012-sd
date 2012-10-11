@@ -1,7 +1,7 @@
 /**
  * 
  */
-package svrEngine;
+package controloservidor;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -13,13 +13,13 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.Calendar;
-
 import javax.swing.JOptionPane;
 
-import protocol.NewPkgData;
-import protocol.ClientProtocol;
-import protocol.PkgJobData;
-import protocol.ServerConfigData;
+import controlocliente.ClientProtocol;
+import controloservidor.ServerConfigData;
+
+import sistema.IOperations;
+import ui.ServerMenu;
 
 
 /**

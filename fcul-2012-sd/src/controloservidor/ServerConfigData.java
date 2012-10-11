@@ -3,7 +3,7 @@
  * TODO Gerar a configuração do cliente apartir desta.
  * TODO gerar a configuração do  deployer apartir desta.
  */
-package protocol;
+package controloservidor;
 
 import java.util.Calendar;
 import java.io.Serializable;

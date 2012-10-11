@@ -1,12 +1,14 @@
 /**
  * 
  */
-package svrEngine;
+package controloservidor;
 
 
 import java.net.ServerSocket;
 import java.net.Socket;
-import protocol.ServerConfigData;
+
+import sistema.IOperations;
+import ui.ServerMenu;
 
 /**
  * Componente modulo de sockets do servidor 

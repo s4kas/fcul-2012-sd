@@ -1,7 +1,7 @@
 /**
  * 
  */
-package protocol;
+package controlocliente;
 
 import java.io.Serializable;
 import java.net.InetAddress;

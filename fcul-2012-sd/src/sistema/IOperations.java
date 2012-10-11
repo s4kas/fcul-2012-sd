@@ -1,5 +1,5 @@
 
-package svrEngine;
+package sistema;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,13 +8,10 @@ import java.io.InvalidClassException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import javax.swing.JOptionPane;
 
-import protocol.ClientConfigData;
-import protocol.NewPkgData;
-import protocol.ServerConfigData;
-import protocol.PkgJobData;
+import controlocliente.ClientConfigData;
+import controloservidor.ServerConfigData;
 
 /**
  * Classe de interface IO e sockets.
