@@ -14,7 +14,6 @@ public class ServerFacade implements IAgentFacade {
 	
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
-	private Boolean stayOnline = Boolean.TRUE;
 	
 	public void sendMessage(IMessage message) {
 		// TODO Auto-generated method stub
@@ -23,7 +22,15 @@ public class ServerFacade implements IAgentFacade {
 
 	public IMessage receiveMessage() {
 		
-		
+		try {
+			//FIXME BM chamar implementacao do thread pool
+			clientSocket = serverSocket.accept();
+			
+			//TODO BM remove this println
+			System.out.println("ServerFacade ClientSocket: " + clientSocket);
+		} catch (Exception e) {
+			//TODO BM tratar erros
+		}
 		return null;//return receivedMessage;
 	}
 
@@ -50,7 +57,7 @@ public class ServerFacade implements IAgentFacade {
 			IMessage message = receiveMessage();
 			
 			//FIXME BM remove println
-			System.out.println(serverSocket);
+			System.out.println("ServerFacade ServerSocket: " + serverSocket);
 		} catch (IOException e) {
 			//TODO BM tratar erros
 		}
