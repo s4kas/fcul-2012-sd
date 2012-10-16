@@ -16,7 +16,6 @@ public class ClientFacade implements IAgentFacade {
 	private Socket clientSocket;
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
-	private ClientConfig clientConfig;
 	
 	public IMessage receiveMessage() {
 		// TODO Auto-generated method stub
@@ -28,9 +27,21 @@ public class ClientFacade implements IAgentFacade {
 
 	}
 
-	public void initialize(IConfiguration config) {
-		//get the configs
-		clientConfig = (ClientConfig) config;
+	public void initialize(IConfiguration clientConfiguration) {
+		if (clientConfiguration == null) {
+			//TODO BM tratar erros
+		}
+		
+		if (clientConfiguration.getConfig() == null) {
+			//TODO BM tratar erros
+		}
+		
+		if (!(clientConfiguration.getConfig() instanceof ClientConfig)) {
+			//TODO BM tratar erros
+		}
+		
+		//try to start the server socket
+		ClientConfig clientConfig = (ClientConfig) clientConfiguration.getConfig();
 		
 		//try to initialize the socket
 		try {
