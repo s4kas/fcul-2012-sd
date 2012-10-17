@@ -55,6 +55,7 @@ public class ClientFacade implements IAgentFacade {
 		
 		
 		try {
+			//TODO BM implement the timeout in properties
 			clientSocket.setSoTimeout(15000);
 			ois = new ObjectInputStream(clientSocket.getInputStream());
 			oos = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -62,22 +63,22 @@ public class ClientFacade implements IAgentFacade {
 		}
 		catch (SocketTimeoutException e)
 		{
+			//TODO BM tratar erros
 			try{
 			    clientSocket.close();
-			    //TODO BM implement this
 			}
 			catch (Exception ex){
-				//TODO BM implement this
+				//TODO BM tratar erros
 			}
 		}
 		catch (Exception ex)
 		{
 			try{
 				clientSocket.close();
-				//TODO BM implement this
+				//TODO BM tratar erros
 			}
 			catch (Exception exc){
-				//TODO BM implement this
+				//TODO BM tratar erros
 			}
 		}
 	}

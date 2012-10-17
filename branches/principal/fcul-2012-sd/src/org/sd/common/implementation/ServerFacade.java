@@ -25,9 +25,6 @@ public class ServerFacade implements IAgentFacade {
 		try {
 			//FIXME BM chamar implementacao do thread pool
 			clientSocket = serverSocket.accept();
-			
-			//TODO BM remove this println
-			System.out.println("ServerFacade ClientSocket: " + clientSocket);
 		} catch (Exception e) {
 			//TODO BM tratar erros
 		}
@@ -55,9 +52,6 @@ public class ServerFacade implements IAgentFacade {
 			
 			//receive messages
 			IMessage message = receiveMessage();
-			
-			//FIXME BM remove println
-			System.out.println("ServerFacade ServerSocket: " + serverSocket);
 		} catch (IOException e) {
 			//TODO BM tratar erros
 		}

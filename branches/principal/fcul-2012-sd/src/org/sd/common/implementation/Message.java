@@ -5,8 +5,8 @@ public class Message extends AbstractMessage {
 	private static final long serialVersionUID = 2146638501733900728L;
 	private Activity activity;
 	
-	@SuppressWarnings({ "hiding", "unchecked" })
-	public <Activity> Activity getContent() {
+	@SuppressWarnings({ "unchecked" })
+	public Activity getContent() {
 		return (Activity) this.activity;
 	}
 
