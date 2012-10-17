@@ -4,9 +4,13 @@ import org.sd.common.structure.IAgent;
 
 public class Agent implements IAgent {
 	
+	public static enum Type {
+		SERVER, CLIENT
+	};
+	
 	private int port;
 	private String address;
-	private AgentType agentType;
+	private Type agentType;
 	
 	public Agent() {
 		
@@ -32,11 +36,12 @@ public class Agent implements IAgent {
 		return this.address;
 	}
 
-	public void setAgentType(AgentType agentType) {
+	public void setAgentType(Type agentType) {
 		this.agentType = agentType;
 	}
 
-	public AgentType getAgentType() {
+	@SuppressWarnings("unchecked")
+	public Type getAgentType() {
 		return this.agentType;
 	}
 	

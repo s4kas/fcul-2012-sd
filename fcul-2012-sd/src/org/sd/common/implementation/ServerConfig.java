@@ -11,6 +11,7 @@ public class ServerConfig implements IConfig {
 		
 		//set config for the server
 		this.server = new Agent();
+		this.server.setAgentType(Agent.Type.SERVER);
 		this.server.setPort(1500);
 		
 		//initialization went smoothly
