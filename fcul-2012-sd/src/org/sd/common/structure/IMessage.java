@@ -10,4 +10,5 @@ public interface IMessage extends Serializable {
 	public IAgent getReceiver();
 	
 	public IAgent getSender();
+	
 }
