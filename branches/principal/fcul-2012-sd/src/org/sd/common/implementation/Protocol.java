@@ -7,6 +7,7 @@ public class Protocol {
 	public final static int CLIENT_ADD=101;
 	public final static int CLIENT_DEL=102;
 	public final static int CLIENT_ALTER=103;
+	public final static int SERVER_SEND_CLIENT_UPDATE=104;
 	
 	//Controlo do servidor
 
