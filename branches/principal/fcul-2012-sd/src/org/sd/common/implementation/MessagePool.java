@@ -1,8 +1,5 @@
 package org.sd.common.implementation;
 
-import java.util.Observable;
-
-import controloservidor.Dispatchable;
 import controloservidor.Dispatcher;
 
 public class MessagePool extends Dispatchable {
@@ -12,14 +9,21 @@ public class MessagePool extends Dispatchable {
 		super(d);
 	}
 
+
 	@Override
-	public Message getMessage() {
+	public boolean postMessage(Message m) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Message takeTheMessage() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean postMessage(Message m) {
+	public boolean isPrimaryServer() {
 		// TODO Auto-generated method stub
 		return false;
 	}
