@@ -111,14 +111,32 @@ public class Dispatcher implements Observer{
  * SERVER PROTOCOLS	
  */
 				
-			case SERVER_CLIENT_REDIRECT: 
-				//Sou secundario
-				//Redireciona os clientes para um primário eleito da lista.
+			case SERVER_REDIRECT: 
+				
+				//Fecha a ligação
+					//Redirecionado porquê?
+					//Inicia a ligação para novo servidor.
 				break;
 
 				
 			case SERVER_SERVER_REQUEST_HANDSHAKE:
-				//TODO: a definir
+			//SE vem de CLIENTE :
+				//SE Sou secundario
+					//Redireciona os clientes para um primário eleito da lista.
+				//SE Sou Primario
+					//Aceita cliente
+					//valida utilizador
+					//adiciona cliente á lista de clientes.
+					//propaga a lista de clientes
+				
+			//SE vem de SERVIDOR:
+				//SE sou secundario 
+					//redireciona os novos secundarios para o prmário
+				//SE sou primario
+					//redireciona o secundario para o fim da lista
+					//propaga a lista de servidores
+				
+
 				break;
 			
 			case SERVER_SERVER_RECIEVE_HANDSHAKE:				
@@ -136,32 +154,7 @@ public class Dispatcher implements Observer{
 			((MessagePool) o).postMessage(new Message());
 				break;
 				
-			case SERVER_SERVER_REQUEST_LOG_UPDATE:
-				//TODO: a definir
-				break;
-				
-			case SERVER_SERVER_RECIEVE_LOG_UPDATE:
-				//TODO: a definir
-				break;
-				
-			case SERVER_SERVER_REQUEST_USERLIST_UPDATE:
-				//TODO: a definir
-				break;
-				
-			case SERVER_SERVER_RECIEVE_USERLIST_UPDATE:
-				//TODO: a definir
-				break;
-				
-			case SERVER_SERVER_REQUEST_SERVERLIST_UPDATE:
-				//TODO: a definir
-				break;
-				
-			case SERVER_SERVER_RECIEVE_SERVERLIST_UPDATE:
-				//TODO: a definir
-				break;			
-				
-				
-			case SERVER_SERVER_REQUEST_FULL_UPDATE:
+			case SERVER_SERVER_REQUEST_TLOG:
 				//valida(evento).
 				//SE: valido() && servidor secundario HANDSHAKED
 					//Envia o historico transaccional para o solicitador..
@@ -169,8 +162,8 @@ public class Dispatcher implements Observer{
 					//responde ao novo secundario "Solicitação invalida".
 				//((MessagePool) o).postMessage(new Message());
 				break;
-
-			case SERVER_SERVER_RECIEVE_FULL_UPDATE:
+				
+			case SERVER_SERVER_RECIEVE_TLOG:
 				//valida(evento).
 				//SE: valido() && servidor secundario HANDSHAKED
 					//guarda os dados 
@@ -178,8 +171,23 @@ public class Dispatcher implements Observer{
 					//responde ao novo secundario "Solicitação invalida".
 				//((MessagePool) o).postMessage(new Message());
 				break;
-
 				
+			case SERVER_SERVER_REQUEST_USERLIST:
+				//TODO: a definir
+				break;
+				
+			case SERVER_SERVER_RECIEVE_USERLIST:
+				//TODO: a definir
+				break;
+				
+			case SERVER_SERVER_REQUEST_SERVERLIST:
+				//TODO: a definir
+				break;
+				
+			case SERVER_SERVER_RECIEVE_SERVERLIST:
+				//TODO: a definir
+				break;			
+
 			case SERVER_SERVER_REQUEST_PROMOTION:
 				//valida(evento).
 					//SE primario:
