@@ -1,7 +1,7 @@
 /**
  * 
  */
-package svrEngine;
+package ui;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -21,6 +21,8 @@ import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import java.util.Calendar;
 import javax.swing.JSeparator;
+
+import controloservidor.NetworkServer;
 
 
 /**

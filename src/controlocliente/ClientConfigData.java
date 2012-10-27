@@ -1,7 +1,7 @@
 /**
  * VERSÃO 1.001s
  */
-package protocol;
+package controlocliente;
 
 import java.io.Serializable;
 
