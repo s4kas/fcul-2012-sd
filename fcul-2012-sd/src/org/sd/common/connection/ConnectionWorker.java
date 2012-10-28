@@ -4,33 +4,32 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-
-import org.sd.common.ICommunicator;
-import org.sd.common.IMessage;
+import org.sd.common.messages.IMessage;
+import org.sd.server.message.MessagePool;
+import org.sd.server.message.MessagePoolProxy;
 
 public class ConnectionWorker implements Runnable {
 	
 	private enum WorkType { SEND, RECEIVE };
 	
 	private WorkType workType;
-	private Socket clientSocket;
-	private IMessage messageToSend;
+	private Socket incomingSocket;
+	private Connection outgoingConnection;
 	
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	
 	public ConnectionWorker(Socket clientSocket) {
 		this.workType = WorkType.RECEIVE;
-		this.clientSocket = clientSocket;
+		this.incomingSocket = clientSocket;
 	}
 	
-	public ConnectionWorker(Socket clientSocket, IMessage message) {
+	public ConnectionWorker(IConnection connection) {
 		this.workType = WorkType.SEND;
-		this.messageToSend = message;
-		this.clientSocket = clientSocket;
+		this.outgoingConnection = (Connection) connection;
 	}
-	
-    public void run() {
+
+	public void run() {
 		switch(workType) {
 		case SEND:
 			sendMessage();
@@ -43,11 +42,18 @@ public class ConnectionWorker implements Runnable {
 
 	public void sendMessage() {			
 		try {
+			//parse the connection
+			IMessage messageToSend = outgoingConnection.getMessage();
+			
 			//try to start the ouput stream
-			oos = new ObjectOutputStream(clientSocket.getOutputStream());
+			oos = new ObjectOutputStream(outgoingConnection.getSocket().getOutputStream());
 			
 			//try to send the message
 			oos.writeObject(messageToSend);
+			
+			//close the streams
+			oos.flush();
+			oos.close();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -61,13 +67,18 @@ public class ConnectionWorker implements Runnable {
 		
 		try {
 			//try to start the input streams
-			ois = new ObjectInputStream(clientSocket.getInputStream());
+			ois = new ObjectInputStream(incomingSocket.getInputStream());
 			
 			//try to cast the object to a message
 			receivedMessage = (IMessage) ois.readObject();
 			
 			//store the message in the MessagePool
 			System.out.println(receivedMessage.getContent());
+			
+			//post a new incoming message to the message pool
+			IConnection incomingConnection = new Connection(receivedMessage, incomingSocket);
+			MessagePool messagePool = MessagePoolProxy.getInstance();
+			messagePool.postIncomingConnection(incomingConnection);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

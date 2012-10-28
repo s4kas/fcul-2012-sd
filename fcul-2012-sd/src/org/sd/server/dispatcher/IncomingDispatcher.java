@@ -1,27 +1,31 @@
-package controloservidor;
+package org.sd.server.dispatcher;
 
-import java.util.Observable;
-import java.util.Observer;
+import org.sd.common.IDispatcher;
+import org.sd.common.Protocol;
+import org.sd.common.connection.IConnection;
+import org.sd.common.messages.IMessage;
+import org.sd.server.message.MessagePool;
+import org.sd.server.message.MessagePoolProxy;
 
-import org.sd.common.implementation.MessagePool;
-import org.sd.common.implementation.Protocol;
-import org.sd.common.messages.Message;
+public class IncomingDispatcher implements IDispatcher {
 
-public class Dispatcher implements Observer{
-
+	MessagePool messagePool = MessagePoolProxy.getInstance();
 	
-	public Dispatcher (){
+	public IncomingDispatcher (){
 		//initDispatcher
 	}	
 	
 	
-	public void update(Observable o, Object arg) {
+	public void update() {
 	
-
+		IConnection incomingConnection = messagePool.takeIncomingConnection();
+		IMessage message = incomingConnection.getMessage();
+		Protocol protocol = message.getHeader();
+		
 		//Recebe Message,
 		//Abre m:Message, e retira o evento ( e:Event = Message.getContent().getEvento().
 		
-		switch ( (Protocol) arg ){
+		switch ( protocol ){
 
 		/*************************************************
 		 * CLIENT PROTOCOLS	

@@ -9,11 +9,16 @@ import org.sd.common.IConfig;
 import org.sd.common.connection.ConnectionPool;
 import org.sd.common.connection.ConnectionPoolProxy;
 import org.sd.common.connection.ConnectionWorker;
+import org.sd.server.dispatcher.IncomingDispatcher;
+import org.sd.server.dispatcher.OutgoingDispatcher;
+import org.sd.server.message.MessagePool;
+import org.sd.server.message.MessagePoolProxy;
 
 public class ServerFacade implements IAgentFacade {
 	
 	private ServerConfig serverConfig;
 	private ConnectionPool connectionPool;
+	private MessagePool messagePool;
 	
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
@@ -28,9 +33,13 @@ public class ServerFacade implements IAgentFacade {
 		//get the server config
 		serverConfig = (ServerConfig) serverConfiguration;
 		
-		//start the WorkQueue
+		//start the ConnectionPool
 		ConnectionPoolProxy.setNThread(serverConfig.getNThreads());
 		connectionPool = ConnectionPoolProxy.getInstance();
+		
+		//start the MessagePool
+		messagePool = MessagePoolProxy.getInstance();
+		messagePool.addDispatchers(new IncomingDispatcher(), new OutgoingDispatcher());
 		
 		try {
 			//start the server socket

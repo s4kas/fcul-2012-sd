@@ -1,6 +1,6 @@
 package org.sd.common.messages;
 
-import org.sd.common.implementation.Protocol;
+import org.sd.common.Protocol;
 
 public class HandShakeMessage extends Message {
 

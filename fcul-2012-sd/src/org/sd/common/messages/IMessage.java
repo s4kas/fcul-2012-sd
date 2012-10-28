@@ -1,4 +1,4 @@
-package org.sd.common;
+package org.sd.common.messages;
 
 import java.io.Serializable;
 

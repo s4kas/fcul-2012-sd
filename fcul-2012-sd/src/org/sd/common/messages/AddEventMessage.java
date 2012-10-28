@@ -1,12 +1,11 @@
 package org.sd.common.messages;
 
-import org.sd.common.implementation.Protocol;
-import sistema.Event;
+import org.sd.common.Protocol;
 
 public class AddEventMessage extends Message {
 
 	private static final long serialVersionUID = 1206263065834076604L;
-	private sistema.Event event;
+	private org.sd.common.messages.Event event;
 	
 	public AddEventMessage(Event event) {
 		this.event = event;
