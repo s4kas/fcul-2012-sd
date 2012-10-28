@@ -8,26 +8,26 @@ import org.sd.common.connection.IConnection;
 
 public abstract class Dispatchable extends Observable {
 	
-	private Set<IncomingDispatcher> incomingObservers = new HashSet<IncomingDispatcher>();
-	private Set<OutgoingDispatcher> outgoingObservers = new HashSet<OutgoingDispatcher>();
+	private Set<ServerDispatcher> serverSideObservers = new HashSet<ServerDispatcher>();
+	private Set<ConnectionDispatcher> connectionObservers = new HashSet<ConnectionDispatcher>();
 	
-	protected void addIncomingObserver(IncomingDispatcher incomingDispatcher) {
-		incomingObservers.add(incomingDispatcher);
+	protected void addIncomingObserver(ServerDispatcher serverDispatcher) {
+		serverSideObservers.add(serverDispatcher);
 	}
 	
-	protected void addOutgoingObserver(OutgoingDispatcher outgoingDispatcher) {
-		outgoingObservers.add(outgoingDispatcher);
+	protected void addOutgoingObserver(ConnectionDispatcher connectionDispatcher) {
+		connectionObservers.add(connectionDispatcher);
 	}
 	
-	protected void notifyIncomingObservers() {
-		for (IncomingDispatcher incomingDispatcher : incomingObservers) {
-			incomingDispatcher.update();
+	protected void notifyServerSideObservers() {
+		for (ServerDispatcher serverDispatcher : serverSideObservers) {
+			serverDispatcher.update();
 		}
 	}
 	
-	protected void notifyOutgoingObservers() {
-		for (OutgoingDispatcher outgoingDispatcher : outgoingObservers) {
-			outgoingDispatcher.update();
+	protected void notifyConnectionObservers() {
+		for (ConnectionDispatcher connectionDispatcher : connectionObservers) {
+			connectionDispatcher.update();
 		}
 	}
 	

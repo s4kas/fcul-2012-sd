@@ -1,6 +1,7 @@
 package org.sd.client;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -35,6 +36,15 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		ConnectionPoolProxy.setNThread(clientConfig.getNThreads());
 		connectionPool = ConnectionPoolProxy.getInstance();
 		
+		//start listening for server messages
+		receiveMessage();
+		
+		//send the handShake to the server
+		sendMessage(new HandShakeMessage());
+	}
+	
+	public void sendMessage(IMessage message) {
+		
 		try {
 			//start remote socket
 			clientSocket = new Socket(clientConfig.getClientAddress(), clientConfig.getClientPort());
@@ -48,20 +58,16 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		isConnected = true;
 		
-		//send the handShake to the server
-		sendMessage(new HandShakeMessage());
-	}
-	
-	public void sendMessage(IMessage message) {
 		//send message
 		Connection connection = new Connection(message, clientSocket);
 		connectionPool.execute(new ConnectionWorker(connection));
 	}
 
 	public IMessage receiveMessage() {
-		//FIXME BM
+		//add the connection to the queue
+		connectionPool.execute(new ConnectionWorker(clientSocket));
+		
 		return null;
 	}
 
@@ -71,8 +77,8 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	    	//send the end protocol to the server
 	    	//workQueue.execute(new ConnectionWorker(clientSocket, new EndConnectionMessage()));
 	    	
-	    	//close the socket
-			clientSocket.close();
+	    	//close the streams
+	    	clientSocket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

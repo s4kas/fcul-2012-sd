@@ -18,9 +18,6 @@ public class TestClientFacade {
 		ClientFacade clientFacade = new ClientFacade();
 		clientFacade.initialize(ClientConfigProxy.getConfig());
 		
-		//starts listening for server messages
-		clientFacade.receiveMessage();
-		
 		//init and send a new message
 		IMessage message = new AddEventMessage(new Event());
 		clientFacade.sendMessage(message);
