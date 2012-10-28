@@ -6,14 +6,14 @@ import java.net.Socket;
 
 import org.sd.common.IAgentFacade;
 import org.sd.common.IConfig;
-import org.sd.common.connection.ConnectionQueue;
-import org.sd.common.connection.ConnectionQueueSingleton;
+import org.sd.common.connection.ConnectionPool;
+import org.sd.common.connection.ConnectionPoolProxy;
 import org.sd.common.connection.ConnectionWorker;
 
 public class ServerFacade implements IAgentFacade {
 	
 	private ServerConfig serverConfig;
-	private ConnectionQueue workQueue;
+	private ConnectionPool connectionPool;
 	
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
@@ -29,8 +29,8 @@ public class ServerFacade implements IAgentFacade {
 		serverConfig = (ServerConfig) serverConfiguration;
 		
 		//start the WorkQueue
-		ConnectionQueueSingleton.setNThread(serverConfig.getNThreads());
-		workQueue = ConnectionQueueSingleton.getInstance();
+		ConnectionPoolProxy.setNThread(serverConfig.getNThreads());
+		connectionPool = ConnectionPoolProxy.getInstance();
 		
 		try {
 			//start the server socket
@@ -44,7 +44,7 @@ public class ServerFacade implements IAgentFacade {
 				clientSocket.setSoTimeout(serverConfig.getConnectionTimeout());
 				
 				//add the connection to the queue
-				workQueue.execute(new ConnectionWorker(clientSocket));
+				connectionPool.execute(new ConnectionWorker(clientSocket));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
