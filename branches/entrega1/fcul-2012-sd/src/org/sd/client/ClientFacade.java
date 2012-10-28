@@ -7,17 +7,18 @@ import java.net.UnknownHostException;
 import org.sd.common.IAgentFacade;
 import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
-import org.sd.common.IMessage;
+import org.sd.common.connection.Connection;
 import org.sd.common.connection.ConnectionPool;
 import org.sd.common.connection.ConnectionPoolProxy;
 import org.sd.common.connection.ConnectionWorker;
 import org.sd.common.messages.HandShakeMessage;
+import org.sd.common.messages.IMessage;
 
 public class ClientFacade implements IAgentFacade, ICommunicator {
 	
 	private Socket clientSocket;
 	private ClientConfig clientConfig;
-	private boolean isConnected;
+	private boolean isConnected = false;
 	
 	private ConnectionPool connectionPool;
 
@@ -34,21 +35,12 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		ConnectionPoolProxy.setNThread(clientConfig.getNThreads());
 		connectionPool = ConnectionPoolProxy.getInstance();
 		
-		//send the handShake to the server
-		sendMessage(new HandShakeMessage());
-	}
-	
-	public void sendMessage(IMessage message) {
-		
 		try {
-			//start listening
+			//start remote socket
 			clientSocket = new Socket(clientConfig.getClientAddress(), clientConfig.getClientPort());
 			
 			//set timeout
 			clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
-			
-			//send message
-			connectionPool.execute(new ConnectionWorker(clientSocket, message));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -56,6 +48,16 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		isConnected = true;
+		
+		//send the handShake to the server
+		sendMessage(new HandShakeMessage());
+	}
+	
+	public void sendMessage(IMessage message) {
+		//send message
+		Connection connection = new Connection(message, clientSocket);
+		connectionPool.execute(new ConnectionWorker(connection));
 	}
 
 	public IMessage receiveMessage() {

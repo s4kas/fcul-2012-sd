@@ -2,10 +2,10 @@ package org.sd.implementation;
 
 import org.sd.client.ClientConfigProxy;
 import org.sd.client.ClientFacade;
-import org.sd.common.IMessage;
 import org.sd.common.messages.AddEventMessage;
+import org.sd.common.messages.Event;
+import org.sd.common.messages.IMessage;
 
-import sistema.Event;
 
 public class TestClientFacade {
 	
@@ -18,10 +18,11 @@ public class TestClientFacade {
 		ClientFacade clientFacade = new ClientFacade();
 		clientFacade.initialize(ClientConfigProxy.getConfig());
 		
-		//init a new message
-		IMessage message = new AddEventMessage(new Event());
-		
-		clientFacade.sendMessage(message);
+		//starts listening for server messages
 		clientFacade.receiveMessage();
+		
+		//init and send a new message
+		IMessage message = new AddEventMessage(new Event());
+		clientFacade.sendMessage(message);
 	}
 }
