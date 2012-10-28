@@ -1,19 +1,15 @@
 package org.sd.client;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import org.sd.common.IAgentFacade;
 import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
 import org.sd.common.IMessage;
-import org.sd.common.connection.ConnectionQueue;
-import org.sd.common.connection.ConnectionQueueSingleton;
+import org.sd.common.connection.ConnectionPool;
+import org.sd.common.connection.ConnectionPoolProxy;
 import org.sd.common.connection.ConnectionWorker;
 import org.sd.common.messages.HandShakeMessage;
 
@@ -23,7 +19,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	private ClientConfig clientConfig;
 	private boolean isConnected;
 	
-	private ConnectionQueue workQueue;
+	private ConnectionPool connectionPool;
 
 	public void initialize(IConfig clientConfiguration) {
 		//do the validations
@@ -35,8 +31,8 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		clientConfig = (ClientConfig) clientConfiguration;
 		
 		//start the WorkQueue
-		ConnectionQueueSingleton.setNThread(clientConfig.getNThreads());
-		workQueue = ConnectionQueueSingleton.getInstance();
+		ConnectionPoolProxy.setNThread(clientConfig.getNThreads());
+		connectionPool = ConnectionPoolProxy.getInstance();
 		
 		//send the handShake to the server
 		sendMessage(new HandShakeMessage());
@@ -52,7 +48,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
 			
 			//send message
-			workQueue.execute(new ConnectionWorker(clientSocket, message));
+			connectionPool.execute(new ConnectionWorker(clientSocket, message));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,7 +59,8 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	}
 
 	public IMessage receiveMessage() {
-		
+		//FIXME BM
+		return null;
 	}
 
 	public void terminate() {
