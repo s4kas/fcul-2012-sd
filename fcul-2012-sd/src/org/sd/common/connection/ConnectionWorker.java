@@ -45,13 +45,12 @@ public class ConnectionWorker implements Runnable {
 			//parse the connection
 			IMessage messageToSend = outgoingConnection.getMessage();
 			
-			//try to start the ouput stream
+			//start the stream
 			oos = new ObjectOutputStream(outgoingConnection.getSocket().getOutputStream());
-			
+		
 			//try to send the message
 			oos.writeObject(messageToSend);
 			
-			//close the streams
 			oos.flush();
 			oos.close();
 			
@@ -68,13 +67,13 @@ public class ConnectionWorker implements Runnable {
 		try {
 			//try to start the input streams
 			ois = new ObjectInputStream(incomingSocket.getInputStream());
-			
-			//try to cast the object to a message
+
+			//message received
 			receivedMessage = (IMessage) ois.readObject();
-			
+				
 			//store the message in the MessagePool
 			System.out.println(receivedMessage.getContent());
-			
+				
 			//post a new incoming message to the message pool
 			IConnection incomingConnection = new Connection(receivedMessage, incomingSocket);
 			MessagePool messagePool = MessagePoolProxy.getInstance();

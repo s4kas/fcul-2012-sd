@@ -1,26 +1,38 @@
 package org.sd.server.dispatcher;
 
+
 import org.sd.common.IDispatcher;
 import org.sd.common.Protocol;
+import org.sd.common.connection.Connection;
 import org.sd.common.connection.IConnection;
+import org.sd.common.messages.AddEventMessage;
+import org.sd.common.messages.Event;
 import org.sd.common.messages.IMessage;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
-public class IncomingDispatcher implements IDispatcher {
+public class ServerDispatcher implements IDispatcher {
 
 	MessagePool messagePool = MessagePoolProxy.getInstance();
 	
-	public IncomingDispatcher (){
+	public ServerDispatcher (){
 		//initDispatcher
 	}	
 	
 	
 	public void update() {
-	
+		
+		
+		//FIXME BM CODIGO TESTE
 		IConnection incomingConnection = messagePool.takeIncomingConnection();
 		IMessage message = incomingConnection.getMessage();
 		Protocol protocol = message.getHeader();
+		System.out.println(protocol + " - " + message.getContent());
+		
+		IMessage outgoingMessage = new AddEventMessage(new Event());
+		IConnection outgoingConnection = new Connection(
+				outgoingMessage, incomingConnection.getSocket());
+		messagePool.postOutgoingConnection(outgoingConnection);
 		
 		//Recebe Message,
 		//Abre m:Message, e retira o evento ( e:Event = Message.getContent().getEvento().

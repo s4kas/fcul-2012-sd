@@ -8,7 +8,7 @@ import org.sd.common.connection.IConnection;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
-public class OutgoingDispatcher implements IDispatcher {
+public class ConnectionDispatcher implements IDispatcher {
 	
 	MessagePool messagePool = MessagePoolProxy.getInstance();
 	ConnectionPool connectionPool = ConnectionPoolProxy.getInstance();

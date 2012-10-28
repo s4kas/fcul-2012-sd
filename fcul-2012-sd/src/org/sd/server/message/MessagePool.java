@@ -4,8 +4,8 @@ import java.util.LinkedList;
 
 import org.sd.common.connection.IConnection;
 import org.sd.server.dispatcher.Dispatchable;
-import org.sd.server.dispatcher.IncomingDispatcher;
-import org.sd.server.dispatcher.OutgoingDispatcher;
+import org.sd.server.dispatcher.ServerDispatcher;
+import org.sd.server.dispatcher.ConnectionDispatcher;
 
 public class MessagePool extends Dispatchable {
 	
@@ -17,9 +17,9 @@ public class MessagePool extends Dispatchable {
 		outgoingQueue = new LinkedList<IConnection>();
 	}
 	
-	public void addDispatchers(IncomingDispatcher incomingDispatcher, OutgoingDispatcher outgoingDispatcher) {
-		addIncomingObserver(incomingDispatcher);
-		addOutgoingObserver(outgoingDispatcher);
+	public void addDispatchers(ServerDispatcher serverDispatcher, ConnectionDispatcher connectionDispatcher) {
+		addIncomingObserver(serverDispatcher);
+		addOutgoingObserver(connectionDispatcher);
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class MessagePool extends Dispatchable {
 		outgoingQueue.addLast(outgoingConnection);
 		
 		//notify observers
-		notifyOutgoingObservers();
+		notifyConnectionObservers();
 		
 		// TODO Auto-generated method stub
 		return true;
@@ -40,7 +40,7 @@ public class MessagePool extends Dispatchable {
 		incomingQueue.addLast(incomingConnection);
 		
 		//warn the observers
-		notifyIncomingObservers();
+		notifyServerSideObservers();
 		
 		// TODO Auto-generated method stub
 		return true;
