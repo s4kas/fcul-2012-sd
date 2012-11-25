@@ -2,7 +2,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.message.MessagePool" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/server/message/MessagePool.java" binary="false">    
-    <position height="-1" width="-1" x="217" y="254"/>    
+    <position height="-1" width="-1" x="194" y="243"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -10,7 +10,7 @@
   </class>  
   <class id="2" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.message.MessagePoolProxy" 
     project="fcul-2012-sd" file="/fcul-2012-sd/src/org/sd/server/message/MessagePoolProxy.java" binary="false">    
-    <position height="-1" width="-1" x="121" y="69"/>    
+    <position height="-1" width="-1" x="98" y="58"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    

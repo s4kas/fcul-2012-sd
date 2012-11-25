@@ -2,7 +2,7 @@ package org.sd.server.message;
 
 import java.util.LinkedList;
 
-import org.sd.common.connection.IConnection;
+import org.sd.server.connection.IConnection;
 import org.sd.server.dispatcher.Dispatchable;
 import org.sd.server.dispatcher.ServerDispatcher;
 import org.sd.server.dispatcher.ConnectionDispatcher;
