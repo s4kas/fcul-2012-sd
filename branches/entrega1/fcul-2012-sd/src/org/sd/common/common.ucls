@@ -2,7 +2,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <interface id="1" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.IAgentFacade" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/common/IAgentFacade.java" binary="false">    
-    <position height="94" width="142" x="222" y="48"/>    
+    <position height="-1" width="-1" x="74" y="84"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -10,7 +10,7 @@
   </interface>  
   <interface id="2" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.ICommunicator" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/common/ICommunicator.java" binary="false">    
-    <position height="94" width="188" x="404" y="48"/>    
+    <position height="-1" width="-1" x="279" y="84"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -18,7 +18,7 @@
   </interface>  
   <interface id="3" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.IConfig" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/common/IConfig.java" binary="false">    
-    <position height="-1" width="-1" x="295" y="363"/>    
+    <position height="-1" width="-1" x="75" y="223"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -26,7 +26,7 @@
   </interface>  
   <interface id="4" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.IDispatcher" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/common/IDispatcher.java" binary="false">    
-    <position height="77" width="112" x="632" y="48"/>    
+    <position height="-1" width="-1" x="81" y="352"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -34,7 +34,7 @@
   </interface>  
   <enumeration id="5" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.Protocol" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/common/Protocol.java" binary="false">    
-    <position height="349" width="330" x="784" y="48"/>    
+    <position height="-1" width="-1" x="275" y="366"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
