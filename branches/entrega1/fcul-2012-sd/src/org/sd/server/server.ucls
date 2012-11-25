@@ -2,7 +2,7 @@
   realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
   <class id="1" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.ServerConfigProxy" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/server/ServerConfigProxy.java" binary="false">    
-    <position height="-1" width="-1" x="108" y="75"/>    
+    <position height="94" width="160" x="91" y="26"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -10,7 +10,7 @@
   </class>  
   <class id="2" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.ServerFacade" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/server/ServerFacade.java" binary="false">    
-    <position height="-1" width="-1" x="329" y="126"/>    
+    <position height="196" width="203" x="291" y="26"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -18,24 +18,32 @@
   </class>  
   <class id="3" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.ServerConfig" project="fcul-2012-sd" 
     file="/fcul-2012-sd/src/org/sd/server/ServerConfig.java" binary="false">    
-    <position height="-1" width="-1" x="214" y="370"/>    
+    <position height="-1" width="-1" x="115" y="285"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <association id="4">    
-    <end type="SOURCE" refId="2" navigable="false">      
-      <attribute id="5" name="serverConfig"/>      
-      <multiplicity id="6" minimum="0" maximum="1"/>    
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.ServerAgenda" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/server/ServerAgenda.java" binary="false">    
+    <position height="-1" width="-1" x="386" y="410"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <association id="5">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="6" name="serverConfig"/>      
+      <multiplicity id="7" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="3" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="7">    
-    <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="8" name="serverConfig"/>      
-      <multiplicity id="9" minimum="0" maximum="1"/>    
+  <association id="8">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="9" name="serverConfig"/>      
+      <multiplicity id="10" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="3" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  

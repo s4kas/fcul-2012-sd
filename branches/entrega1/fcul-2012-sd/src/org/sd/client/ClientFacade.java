@@ -1,22 +1,15 @@
 package org.sd.client;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.sd.common.IAgentFacade;
 import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
-import org.sd.common.connection.Connection;
-import org.sd.common.connection.ConnectionPool;
-import org.sd.common.connection.ConnectionPoolProxy;
-import org.sd.common.connection.ConnectionWorker;
-import org.sd.common.connection.ConnectionWorker.WorkType;
-import org.sd.common.connection.IConnection;
 import org.sd.common.messages.HandShakeMessage;
 import org.sd.common.messages.IMessage;
+import org.sd.server.connection.Connection;
 
 public class ClientFacade implements IAgentFacade, ICommunicator {
 	
@@ -25,7 +18,6 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	private boolean isConnected = false;
 	
 	private Connection connection;
-	private ConnectionPool connectionPool;
 
 	public void initialize(IConfig clientConfiguration) {
 		//do the validations
@@ -35,10 +27,6 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		
 		//get the client config
 		clientConfig = (ClientConfig) clientConfiguration;
-		
-		//start the WorkQueue
-		ConnectionPoolProxy.setNThread(clientConfig.getNThreads());
-		connectionPool = ConnectionPoolProxy.getInstance();
 		
 		try {
 			//start remote socket
@@ -67,14 +55,12 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	
 	public void sendMessage(IMessage message) {
 		//send message
-		connection.setMessage(message);
-		connectionPool.execute(new ConnectionWorker(connection, WorkType.SEND));
+		
 		
 	}
 
 	public IMessage receiveMessage() {
 		//add the connection to the queue
-		connectionPool.execute(new ConnectionWorker(connection, WorkType.RECEIVE));
 		
 		return null;
 	}
@@ -82,8 +68,6 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	public void terminate() {
 		
 	    try {
-	    	//send the end protocol to the server
-	    	//workQueue.execute(new ConnectionWorker(clientSocket, new EndConnectionMessage()));
 	    	
 	    	//close the streams
 	    	clientSocket.close();

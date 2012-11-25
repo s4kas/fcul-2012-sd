@@ -8,11 +8,11 @@ import java.net.Socket;
 
 import org.sd.common.IAgentFacade;
 import org.sd.common.IConfig;
-import org.sd.common.connection.Connection;
-import org.sd.common.connection.ConnectionPool;
-import org.sd.common.connection.ConnectionPoolProxy;
-import org.sd.common.connection.ConnectionWorker;
-import org.sd.common.connection.ConnectionWorker.WorkType;
+import org.sd.server.connection.Connection;
+import org.sd.server.connection.ConnectionPool;
+import org.sd.server.connection.ConnectionPoolProxy;
+import org.sd.server.connection.ConnectionWorker;
+import org.sd.server.connection.ConnectionWorker.WorkType;
 import org.sd.server.dispatcher.ServerDispatcher;
 import org.sd.server.dispatcher.ConnectionDispatcher;
 import org.sd.server.message.MessagePool;

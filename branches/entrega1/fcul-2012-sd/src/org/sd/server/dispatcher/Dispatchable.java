@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
 
-import org.sd.common.connection.IConnection;
+import org.sd.server.connection.IConnection;
 
 public abstract class Dispatchable extends Observable {
 	

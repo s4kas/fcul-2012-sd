@@ -4,7 +4,6 @@ import org.sd.common.IConfig;
 
 public class ClientConfig implements IConfig {
 	
-	private int nThreads;
 	private String clientAddress;
 	private int clientPort;
 	private int connectionTimeout;
@@ -14,14 +13,9 @@ public class ClientConfig implements IConfig {
 		clientAddress = "localhost";
 		clientPort = 1500;
 		connectionTimeout = 15000;
-		nThreads = 10;
 		
 		//initialization went smoothly
 		return true;
-	}
-	
-	public int getNThreads() {
-		return nThreads;
 	}
 
 	public String getClientAddress() {
