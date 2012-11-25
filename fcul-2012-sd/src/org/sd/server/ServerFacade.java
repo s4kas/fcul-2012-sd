@@ -1,14 +1,18 @@
 package org.sd.server;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.sd.common.IAgentFacade;
 import org.sd.common.IConfig;
+import org.sd.common.connection.Connection;
 import org.sd.common.connection.ConnectionPool;
 import org.sd.common.connection.ConnectionPoolProxy;
 import org.sd.common.connection.ConnectionWorker;
+import org.sd.common.connection.ConnectionWorker.WorkType;
 import org.sd.server.dispatcher.ServerDispatcher;
 import org.sd.server.dispatcher.ConnectionDispatcher;
 import org.sd.server.message.MessagePool;
@@ -50,10 +54,11 @@ public class ServerFacade implements IAgentFacade {
 				clientSocket = serverSocket.accept();
 				
 				//define a timeout
-				clientSocket.setSoTimeout(serverConfig.getConnectionTimeout());
+				//clientSocket.setSoTimeout(serverConfig.getConnectionTimeout());
 				
 				//add the connection to the queue
-				connectionPool.execute(new ConnectionWorker(clientSocket));
+				Connection connection = new Connection(clientSocket);
+				connectionPool.execute(new ConnectionWorker(connection, WorkType.RECEIVE));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -1,6 +1,7 @@
 package org.sd.client;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -12,6 +13,8 @@ import org.sd.common.connection.Connection;
 import org.sd.common.connection.ConnectionPool;
 import org.sd.common.connection.ConnectionPoolProxy;
 import org.sd.common.connection.ConnectionWorker;
+import org.sd.common.connection.ConnectionWorker.WorkType;
+import org.sd.common.connection.IConnection;
 import org.sd.common.messages.HandShakeMessage;
 import org.sd.common.messages.IMessage;
 
@@ -21,6 +24,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	private ClientConfig clientConfig;
 	private boolean isConnected = false;
 	
+	private Connection connection;
 	private ConnectionPool connectionPool;
 
 	public void initialize(IConfig clientConfiguration) {
@@ -36,21 +40,13 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		ConnectionPoolProxy.setNThread(clientConfig.getNThreads());
 		connectionPool = ConnectionPoolProxy.getInstance();
 		
-		//start listening for server messages
-		receiveMessage();
-		
-		//send the handShake to the server
-		sendMessage(new HandShakeMessage());
-	}
-	
-	public void sendMessage(IMessage message) {
-		
 		try {
 			//start remote socket
 			clientSocket = new Socket(clientConfig.getClientAddress(), clientConfig.getClientPort());
 			
 			//set timeout
-			clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
+			//clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
+			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,14 +55,26 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			e.printStackTrace();
 		}
 		
+		//init the streams
+		connection = new Connection(clientSocket);
+		
+		//send the handShake to the server
+		sendMessage(new HandShakeMessage());
+		
+		//start listening for server messages
+		receiveMessage();
+	}
+	
+	public void sendMessage(IMessage message) {
 		//send message
-		Connection connection = new Connection(message, clientSocket);
-		connectionPool.execute(new ConnectionWorker(connection));
+		connection.setMessage(message);
+		connectionPool.execute(new ConnectionWorker(connection, WorkType.SEND));
+		
 	}
 
 	public IMessage receiveMessage() {
 		//add the connection to the queue
-		connectionPool.execute(new ConnectionWorker(clientSocket));
+		connectionPool.execute(new ConnectionWorker(connection, WorkType.RECEIVE));
 		
 		return null;
 	}
