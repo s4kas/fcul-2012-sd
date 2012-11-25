@@ -1,0 +1,53 @@
+<class-diagram version="1.0.10" icons="true" automaticImage="PNG" always-add-relationships="true" generalizations="true" 
+  realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
+  <interface id="1" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.IAgentFacade" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/common/IAgentFacade.java" binary="false">    
+    <position height="94" width="142" x="222" y="48"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <interface id="2" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.ICommunicator" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/common/ICommunicator.java" binary="false">    
+    <position height="94" width="188" x="404" y="48"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <interface id="3" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.IConfig" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/common/IConfig.java" binary="false">    
+    <position height="-1" width="-1" x="295" y="363"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <interface id="4" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.IDispatcher" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/common/IDispatcher.java" binary="false">    
+    <position height="77" width="112" x="632" y="48"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <enumeration id="5" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.Protocol" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/common/Protocol.java" binary="false">    
+    <position height="349" width="330" x="784" y="48"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </enumeration>  
+  <dependency id="6">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

@@ -1,32 +1,20 @@
 package org.sd.common.connection;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import org.sd.common.messages.IMessage;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
 public class ConnectionWorker implements Runnable {
 	
-	private enum WorkType { SEND, RECEIVE };
+	public enum WorkType { SEND, RECEIVE };
 	
 	private WorkType workType;
-	private Socket incomingSocket;
-	private Connection outgoingConnection;
+	private IConnection workingConnection;
 	
-	private ObjectInputStream ois;
-	private ObjectOutputStream oos;
-	
-	public ConnectionWorker(Socket clientSocket) {
-		this.workType = WorkType.RECEIVE;
-		this.incomingSocket = clientSocket;
-	}
-	
-	public ConnectionWorker(IConnection connection) {
-		this.workType = WorkType.SEND;
-		this.outgoingConnection = (Connection) connection;
+	public ConnectionWorker(IConnection connection, WorkType workType) {
+		this.workType = workType;
+		this.workingConnection = connection;
 	}
 
 	public void run() {
@@ -42,17 +30,17 @@ public class ConnectionWorker implements Runnable {
 
 	public void sendMessage() {			
 		try {
-			//parse the connection
-			IMessage messageToSend = outgoingConnection.getMessage();
-			
-			//start the stream
-			oos = new ObjectOutputStream(outgoingConnection.getSocket().getOutputStream());
+			//get the message
+			IMessage messageToSend = workingConnection.getMessage();
 		
 			//try to send the message
-			oos.writeObject(messageToSend);
+			workingConnection.getOutputStream().writeObject(messageToSend);
 			
-			oos.flush();
-			oos.close();
+			//FIXME BM
+			System.out.println("Sent: " + messageToSend.getContent());
+			System.out.println("To: " + workingConnection.getSocket().getInetAddress());
+			
+			workingConnection.getOutputStream().flush();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -65,20 +53,19 @@ public class ConnectionWorker implements Runnable {
 		IMessage receivedMessage = null;
 		
 		try {
-			//try to start the input streams
-			ois = new ObjectInputStream(incomingSocket.getInputStream());
-
-			//message received
-			receivedMessage = (IMessage) ois.readObject();
-				
-			//store the message in the MessagePool
-			System.out.println(receivedMessage.getContent());
-				
-			//post a new incoming message to the message pool
-			IConnection incomingConnection = new Connection(receivedMessage, incomingSocket);
-			MessagePool messagePool = MessagePoolProxy.getInstance();
-			messagePool.postIncomingConnection(incomingConnection);
-			
+			while (workingConnection.getSocket().isConnected()) {
+				//message received
+				receivedMessage = (IMessage) workingConnection.getInputStream().readObject();
+					
+				//FIXME BM
+				System.out.println("Received: " + receivedMessage.getContent());
+				System.out.println("From: " + workingConnection.getSocket().getInetAddress());
+					
+				//post a new incoming message to the message pool
+				IConnection incomingConnection = new Connection(receivedMessage, workingConnection);
+				MessagePool messagePool = MessagePoolProxy.getInstance();
+				messagePool.postIncomingConnection(incomingConnection);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
