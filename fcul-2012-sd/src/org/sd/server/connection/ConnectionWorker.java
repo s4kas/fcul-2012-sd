@@ -1,6 +1,9 @@
 package org.sd.server.connection;
 
 import java.io.IOException;
+
+import org.sd.common.connection.Connection;
+import org.sd.common.connection.IConnection;
 import org.sd.common.messages.IMessage;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;

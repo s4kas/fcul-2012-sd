@@ -4,7 +4,7 @@ import org.sd.common.IDispatcher;
 import org.sd.server.connection.ConnectionPool;
 import org.sd.server.connection.ConnectionPoolProxy;
 import org.sd.server.connection.ConnectionWorker;
-import org.sd.server.connection.IConnection;
+import org.sd.common.connection.IConnection;
 import org.sd.server.connection.ConnectionWorker.WorkType;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;

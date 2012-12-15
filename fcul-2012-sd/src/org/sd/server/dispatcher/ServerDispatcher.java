@@ -5,11 +5,7 @@ import java.util.ArrayList;
 
 import org.sd.common.IDispatcher;
 import org.sd.common.Protocol;
-import org.sd.common.messages.AddEventMessage;
-import org.sd.common.messages.Event;
 import org.sd.common.messages.IMessage;
-import org.sd.server.connection.Connection;
-import org.sd.server.connection.IConnection;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
