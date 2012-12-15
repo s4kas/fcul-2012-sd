@@ -1,23 +1,25 @@
 package org.sd.client.ui;
 
+import java.awt.Frame;
 import java.util.Calendar;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 public class ClientUI {
 	
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable(){  
-	    	public void run(){  
-	    		ClientUI.buildUI();
-	    	}  
-	    });  
-	} 
+	private static Frame frame;
 	
+	public static Frame getFrame() {
+		return frame;
+	}
+
 	public static void buildUI() {
-		
+		startUI();
+		constructCalendarFrame();
+	}
+	
+	private static void startUI() {
 		try {
 			UIManager.setLookAndFeel(
 			        UIManager.getCrossPlatformLookAndFeelClassName());
@@ -35,17 +37,19 @@ public class ClientUI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+	}
+	
+	private static void constructCalendarFrame() {
 		Calendar c = Calendar.getInstance();
 		int mes = c.get(Calendar.MONTH);
 		int ano = c.get(Calendar.YEAR);
 		
-		JFrame f = new JFrame("Agenda");
-		f.getContentPane().add(new CalendarPanel(mes,ano, 1970, 2050).construct());
-		f.pack();
-		f.setLocationRelativeTo(null);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setVisible(true);
+		frame = new JFrame("Agenda");
+		((JFrame) frame).getContentPane().add(new CalendarPanel(mes,ano, 1970, 2050).construct());
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		((JFrame) frame).setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 	
 }

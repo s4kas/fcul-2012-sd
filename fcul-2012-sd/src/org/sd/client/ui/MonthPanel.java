@@ -10,6 +10,7 @@ import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -18,11 +19,11 @@ import javax.swing.border.LineBorder;
 public class MonthPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private String[] daysOfWeek = {"Domingo","Segunda","Terça","Quarta","Quinta",
-			"Sexta","Sabado"};
+	
 	private GridBagConstraints c;
 	private Border border;
 	private Calendar calendar;
+	private DayFrame dayFrame;
 	
 	public MonthPanel(int year, int month) {
 		c = new GridBagConstraints();
@@ -42,9 +43,9 @@ public class MonthPanel extends JPanel implements ActionListener {
 		//dias header
 		c.gridy = 0;
 		c.gridx = 0;
-		for (int i = 0; i < daysOfWeek.length; i ++) {
+		for (int i = 0; i < UIConstants.DAYS_OF_WEEK.length; i ++) {
 			c.gridx ++;
-			JLabel label = new JLabel(daysOfWeek[i], JLabel.CENTER);
+			JLabel label = new JLabel(UIConstants.DAYS_OF_WEEK[i], JLabel.CENTER);
 			label.setBorder(border);
 			add(label,c);
 		}
@@ -72,7 +73,6 @@ public class MonthPanel extends JPanel implements ActionListener {
 			
 			button.addActionListener(this);
 			add(button,c);
-			calendar.set(Calendar.DAY_OF_MONTH, i+2);
 			dayOfWeek++;
 		}
 		
@@ -81,6 +81,33 @@ public class MonthPanel extends JPanel implements ActionListener {
 
 	public void actionPerformed(ActionEvent event) {
 		final JButton button = (JButton) event.getSource();
-		System.out.println(button.getText());
+		int day = Integer.parseInt(button.getText());
+		
+		startDayFrame(getDayPanelTitle(button.getText()), day);
+	}
+	
+	private void startDayFrame(String title, int day) {
+		if (dayFrame != null) {
+			dayFrame.shutdown();
+		}
+		
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
+		
+		dayFrame = new DayFrame(title);
+		dayFrame.getContentPane().add(new DayPanel(day,month,year).constructListEvents());
+		dayFrame.pack();
+		dayFrame.setLocationRelativeTo(null);
+		dayFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		dayFrame.setVisible(true);
+	}
+	
+	private String getDayPanelTitle(String day) {
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
+		
+		return UIConstants.DAYS_OF_WEEK[dayOfWeek-1] + ", "
+				+ day + " de " + UIConstants.MONTHS[month] + " de " + year;
 	}
 }

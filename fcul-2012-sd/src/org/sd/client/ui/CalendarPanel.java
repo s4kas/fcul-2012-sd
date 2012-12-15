@@ -18,9 +18,7 @@ import javax.swing.JScrollPane;
 public class CalendarPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	
-	private String[] months = { "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-		      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro" };
+
 	private GridBagConstraints c;
 	private JPanel yearChoice, monthChoice;
 	private JScrollPane recentEvents;
@@ -66,10 +64,7 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	}
 	
 	private void reconstruct() {
-		this.remove(yearChoice);
-		this.remove(monthChoice);
-		this.remove(monthPanel);
-		this.remove(recentEvents);
+		this.removeAll();
 		this.construct();
 		this.revalidate();
 		this.repaint();
@@ -96,7 +91,7 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		//regredir mes
 		monthChoice.add(getBackButton(),c);
 		//mes
-		monthChoice.add(new JLabel(months[month],JLabel.CENTER),c);
+		monthChoice.add(new JLabel(UIConstants.MONTHS[month],JLabel.CENTER),c);
 		//avancar mes
 		monthChoice.add(getForwardButton(),c);
 		
@@ -135,26 +130,32 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent ev) {
 		JButton jb = (JButton) ev.getSource();
 		
+		//mudou de ano
 		if (jb.getParent() == this.yearChoice) {
-			if (jb.getIcon() == this.forward) this.year++;
-			else this.year--;
+			if (jb.getIcon() == this.forward) { //frente
+				this.year++;
+			} else { //tras
+				this.year--;
+			}
+		//mudou de mes
 		} else if (jb.getParent() == this.monthChoice) {
-			if (jb.getIcon() == this.forward) {
+			if (jb.getIcon() == this.forward) { //frente
 				this.month++;
-				if (this.month == 12) {
-					this.month = 0;
-					this.year++;
-				}
-			} else {
+			} else { //tras
 				this.month--;
-				if (this.month == -1) {
-					this.month = 11;
-					this.year--;
-				}
 			}
 		}
 		
-		if (this.year < yearLowLimit) this.year = yearLowLimit;
+		//ultrapassei ambos os limites (ano e mes)
+		if (this.month == 12 && this.year == yearSupLimit) this.month = 11;
+		if (this.month == -1 && this.year == yearLowLimit) this.month = 0;
+		
+		//ultrapassei os limites de meses
+		if (this.month == 12) { this.month = 0; this.year++; }
+		if (this.month == -1) { this.month = 11; this.year--; }
+		
+		//ultrapassei os limites de anos
+		if (this.year < yearLowLimit) this.year = yearLowLimit; 
 		if (this.year > yearSupLimit) this.year = yearSupLimit;
 		
 		reconstruct();
