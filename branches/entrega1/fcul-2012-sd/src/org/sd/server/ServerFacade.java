@@ -1,14 +1,12 @@
 package org.sd.server;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.sd.common.IAgentFacade;
 import org.sd.common.IConfig;
-import org.sd.server.connection.Connection;
+import org.sd.common.connection.Connection;
 import org.sd.server.connection.ConnectionPool;
 import org.sd.server.connection.ConnectionPoolProxy;
 import org.sd.server.connection.ConnectionWorker;
