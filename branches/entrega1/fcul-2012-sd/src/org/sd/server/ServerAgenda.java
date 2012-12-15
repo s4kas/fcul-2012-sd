@@ -11,6 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.sd.common.IConfig;
+import org.sd.data.Agenda;
+import org.sd.server.dispatcher.Dispatchable;
+import org.sd.server.dispatcher.DispatcherProcess;
+
 public class ServerAgenda extends JFrame implements ActionListener{
 	
 	
@@ -24,23 +29,36 @@ public class ServerAgenda extends JFrame implements ActionListener{
 	private GroupLayout 									layout;
 	private JScrollPane 									sp = new JScrollPane();
 	
+	private ServerFacade 									sf;
+	private DispatcherEngine								de;
+	private Agenda 											ag;
+	private ServerConfig									sc;
+	
+	public static void addToInfoConsole(String s){
+		dialog.setText(dialog.getText()+"\n"+s);
+		
+	}
 	
 	
 	/********************************************************************
 	 * Construtor de ServerAgenda
 	 */
-	public ServerAgenda (){
+	public ServerAgenda (int sPort){
 
 		//Inicializa sub-sistemas
 		//Inicializa agenda - carrega dados ficheiro
+		ag = new Agenda();
 		//Inicializa controlo - carrega os dados de sistema.
-		//Se inicializado.
+		sc = new ServerConfig();
 		//Inicializa ServerFacede.
+		sf = new ServerFacade();
 		//inicializa ServerDispatcher.
+		de = new DispatcherEngine();
 		//Inicializa Interface grafico.
-
+		//Se inicializado.
 		
-//		pauseButton.setEnabled(false);
+		
+		pauseButton.setEnabled(false);
 	//	pauseButton.repaint();
 		
 		controlPanelLayoutInit(); //Inicializa o JPanel
@@ -48,9 +66,8 @@ public class ServerAgenda extends JFrame implements ActionListener{
 		this.getContentPane().add(controlPanel,BorderLayout.CENTER);
 	    this.pack();
  
-
-        
 	}
+	
 	
 	/****************************************************************
 	 * Constroi o interface swing para operar o mundo.
@@ -64,7 +81,12 @@ public class ServerAgenda extends JFrame implements ActionListener{
 	
     	dialog.setText("teste!");
     	dialog.setEditable(false);
-		quitButton.setText("Sair");
+
+    	pauseButton.setText("Rejeita");
+    	pauseButton.addActionListener(this);
+    	continueButton.setText("Aceita");
+    	continueButton.addActionListener(this);
+    	quitButton.setText("Sair");
 		quitButton.addActionListener(this);
 		sp.getViewport().add(dialog);
 
@@ -78,6 +100,7 @@ public class ServerAgenda extends JFrame implements ActionListener{
 	    		layout.createSequentialGroup()
 	    		.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 	    				.addComponent(quitButton)
+	    				.addComponent(pauseButton)
 	    				.addComponent(sp)
 	    				)
 	    		);
@@ -85,6 +108,7 @@ public class ServerAgenda extends JFrame implements ActionListener{
 	    layout.setVerticalGroup(
 	    		layout.createSequentialGroup()
 				.addComponent(quitButton)
+				.addComponent(pauseButton)
 				.addComponent(sp)
 
 	    );
@@ -93,19 +117,27 @@ public class ServerAgenda extends JFrame implements ActionListener{
 	
 	public void actionPerformed(ActionEvent e) {
 		Object src = e.getSource();
-		
 	}
-
-	
-	
 	
 	/**
 	 * PONTO DE ENTRADA DO PROGRAMA.
 	 */
 	public static void main(String[] args) {
-
-			
 		
+		int serverPort = 0;
+		
+		if (args.length>0){
+			try {
+				System.out.println("debug"+args[0]);
+				serverPort= Integer.parseInt(args[1]);	
+			} catch (NumberFormatException n){
+				//not a number
+			}
+		}
+		ServerAgenda s = new ServerAgenda(serverPort);
+		s.setVisible(true);
+		ServerAgenda.addToInfoConsole("Forçada a porta: "+serverPort );
+		ServerAgenda.addToInfoConsole("Inicializado");
 	}
 
 
