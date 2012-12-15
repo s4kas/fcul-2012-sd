@@ -1,6 +1,7 @@
 package org.sd.client;
 
 import org.sd.common.IConfig;
+import org.sd.common.properties.PropertiesManager;
 
 public class ClientConfig implements IConfig {
 	
@@ -9,11 +10,14 @@ public class ClientConfig implements IConfig {
 	private int connectionTimeout;
 	
 	public boolean loadConfig() {
-		//FIXME BM implement loadProperties
-		clientAddress = "localhost";
-		clientPort = 1500;
-		connectionTimeout = 15000;
-		
+		try {
+			clientAddress = PropertiesManager.getClientProps(false).getProperty("clientAddress");
+			clientPort = Integer.parseInt(PropertiesManager.getClientProps(false).getProperty("clientPort"));
+			connectionTimeout = Integer.parseInt(PropertiesManager.getClientProps(false).getProperty("connectionTimeout"));
+		} catch (Exception e) {
+			//TODO BM do something
+			return false;
+		}
 		//initialization went smoothly
 		return true;
 	}
