@@ -21,17 +21,17 @@ public class ClientController {
 	    });
 	}
 	
-	public static void addEvent(int day, int month, int year, 
-			String title, String content) {
-		Event ev = new Event(day,month,year,title,content);
+	public static boolean addEvent(int day, int month, int year, int startHour,
+			int startMinutes, int endHour, int endMinutes, String title, String content) {
+		Event ev = new Event(day,month,year,startHour, startMinutes, endHour,
+				endMinutes, title,content);
 		AddEventMessage message = new AddEventMessage(ev);
 		clientFacade.sendMessage(message);
 		IMessage receivedMessage = clientFacade.receiveMessage();
 		if (receivedMessage == null) {
-			//INFORMAR O UI que n foi possivel
-			return;
+			return false;
 		}
-		
+		return true;
 	}
 	
 	public static void deleteEvent(String id) {
