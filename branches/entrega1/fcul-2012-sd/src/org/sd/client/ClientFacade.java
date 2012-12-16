@@ -15,8 +15,8 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	
 	private Socket clientSocket;
 	private ClientConfig clientConfig;
-	private boolean isConnected = false;
-	private boolean isHandShaked = false;
+	public boolean isConnected = false;
+	public boolean isHandShaked = false;
 	
 	private Connection connection;
 
@@ -39,11 +39,13 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			this.isConnected = true;
 			
 		} catch (UnknownHostException e) {
-			terminate();
 			e.printStackTrace();
+			terminate();
+			return;
 		} catch (IOException e) {
-			terminate();
 			e.printStackTrace();
+			terminate();
+			return;
 		}
 		
 		//start new connection
@@ -54,8 +56,9 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		sendMessage(handShake);
 		//receive the result
 		IMessage receivedMessage = receiveMessage();
-		//send to controller to process
-		ClientController.receiveMessage(receivedMessage);
+		if (receivedMessage != null) {
+			isHandShaked = true;
+		}
 	}
 	
 	public void sendMessage(IMessage message) {
@@ -91,7 +94,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	    try {
 	    	//close the streams
 	    	clientSocket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
