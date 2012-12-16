@@ -3,24 +3,29 @@ package org.sd.server.dispatcher;
 
 import java.util.ArrayList;
 
-import org.sd.common.IDispatcher;
-import org.sd.common.Protocol;
 import org.sd.common.messages.IMessage;
+import org.sd.data.Agenda;
+import org.sd.protocol.Protocol;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
+/**************************************************************************++
+ * Controls message Dispatching . 
+ */
 public class ServerDispatcher implements IDispatcher {
 	
-	ArrayList <DispatcherProcess> dpList = new ArrayList<DispatcherProcess>();
+	private ArrayList <DispatcherProcess> dpList = new ArrayList<DispatcherProcess>();
+	private MessagePool messagePool = MessagePoolProxy.getInstance();
+	private Agenda agenda; 
 	
-	MessagePool messagePool = MessagePoolProxy.getInstance();
 	
-	public ServerDispatcher (){
-	}	
-	
+	public ServerDispatcher (Agenda a){
+		this.agenda=a;
+	}
+
 	
 	/*****************************************************
-	 * Remove da lista os processos terminados.
+	 * Removes dead or timeout dispatcher process from memory 
 	 */
 	private void cleanUp(){
 		
@@ -34,30 +39,27 @@ public class ServerDispatcher implements IDispatcher {
 		dpList.removeAll(cleanUpDeadOnes);
 	}
 	
-
 	
 	/*******************************************************
-	 * Nova mensagem para processamento.
+	 * Message ready for processing.
 	 */
 	public void update() {
 		
-		//limpa lista de threads
+		//CLEAN UP REFERENCE TO ENDED THREADS ?? 
 		cleanUp();
-		
-
-		//mensagem a processar
+		//Message to process
 		IMessage message = (messagePool.takeIncomingConnection()).getMessage();
-		//protocolo associado a esta mensagem
+		//Get protocol
+				 
 		Protocol protocol = message.getHeader();
 		System.out.println(protocol + " - " + message.getContent());
-
-		//tenta despachar.
+		//Goes for it.
 		try{
-			DispatcherProcess dp =  new DispatcherProcess(message);		
+			DispatcherProcess dp =  new DispatcherProcess(message, agenda);		
 			dp.run();
 			dpList.add(dp);
 		} catch (Exception e){
-			System.out.println(protocol + " - cuspiu a mensagem a mensagem!");
+			System.out.println(protocol + " - couldnt Swalow this one!");
 		}
 	}
 }

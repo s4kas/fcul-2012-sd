@@ -1,7 +1,7 @@
 package org.sd.client.messages;
 
-import org.sd.common.Protocol;
 import org.sd.common.messages.Message;
+import org.sd.protocol.Protocol;
 
 public class HandShakeMessage extends Message {
 

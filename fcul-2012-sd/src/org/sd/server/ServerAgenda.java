@@ -15,6 +15,7 @@ import org.sd.common.IConfig;
 import org.sd.data.Agenda;
 import org.sd.server.dispatcher.Dispatchable;
 import org.sd.server.dispatcher.DispatcherProcess;
+import org.sd.server.dispatcher.ServerDispatcher;
 
 public class ServerAgenda extends JFrame implements ActionListener{
 	
@@ -29,48 +30,23 @@ public class ServerAgenda extends JFrame implements ActionListener{
 	private GroupLayout 									layout;
 	private JScrollPane 									sp = new JScrollPane();
 	
-	private ServerFacade 									sf;
-	private DispatcherEngine								de;
-	private Agenda 											ag;
-	private ServerConfig									sc;
+	private ServerFacade 									runningServerFacade;
+	private ServerDispatcher								runningDispatcher;
+	private Agenda 											runningAgenda;
+	private ServerConfig									runningServerConfig;
 	
+	
+	/***********************************************************************
+	 * DEBUG WINDOW
+	 * @param s
+	 */
 	public static void addToInfoConsole(String s){
 		dialog.setText(dialog.getText()+"\n"+s);
 		
 	}
 	
-	
-	/********************************************************************
-	 * Construtor de ServerAgenda
-	 */
-	public ServerAgenda (int sPort){
-
-		//Inicializa sub-sistemas
-		//Inicializa agenda - carrega dados ficheiro
-		ag = new Agenda();
-		//Inicializa controlo - carrega os dados de sistema.
-		sc = new ServerConfig();
-		//Inicializa ServerFacede.
-		sf = new ServerFacade();
-		//inicializa ServerDispatcher.
-		de = new DispatcherEngine();
-		//Inicializa Interface grafico.
-		//Se inicializado.
-		
-		
-		pauseButton.setEnabled(false);
-	//	pauseButton.repaint();
-		
-		controlPanelLayoutInit(); //Inicializa o JPanel
-		
-		this.getContentPane().add(controlPanel,BorderLayout.CENTER);
-	    this.pack();
- 
-	}
-	
-	
 	/****************************************************************
-	 * Constroi o interface swing para operar o mundo.
+	 * CONSTRUCTS SWING PANEL INTERFACE 
 	 */
 	private void controlPanelLayoutInit(){
 		
@@ -113,14 +89,56 @@ public class ServerAgenda extends JFrame implements ActionListener{
 
 	    );
 	}
+
+	
+	/********************************************************************
+	 * INITIALIZE COMPONENTS AND UI
+	 */
+	public ServerAgenda (int sPort){
+
+		//Intitializinf
+		addToInfoConsole("initializing components!");
+		//Inicializa agenda - carrega dados ficheiro
+		addToInfoConsole("Initializing Agenda!");
+		runningAgenda = new Agenda();
+		addToInfoConsole("Agenda Initialized!");
+		//Inicializa controlo - carrega os dados de sistema.
+		addToInfoConsole("Initializing ServerConfig!");
+		runningServerConfig = new ServerConfig();
+		runningServerConfig.loadConfig();
+		addToInfoConsole("ServerConfig Initialized!");
+		//Inicializa ServerFacede.
+
+		addToInfoConsole("Initializing DispatcherEngine!");
+		runningDispatcher = new ServerDispatcher(runningAgenda);
+		addToInfoConsole("DispatcherEngine Initialized!");
+		addToInfoConsole("Released to network!");
+
+		runningServerFacade = new ServerFacade();
+		runningServerFacade.initialize(runningServerConfig,runningDispatcher);
+		addToInfoConsole("ServerFacede Initialized!");
+		//inicializa ServerDispatcher.
+		
+		pauseButton.setEnabled(false);
+		controlPanelLayoutInit(); //Inicializa o JPanel
+		this.getContentPane().add(controlPanel,BorderLayout.CENTER);
+	    this.pack();
+ 	}
 	
 	
+	
+	/**************************************************************+
+	 * ACTION PERFORMED
+	 */
 	public void actionPerformed(ActionEvent e) {
 		Object src = e.getSource();
 	}
 	
-	/**
-	 * PONTO DE ENTRADA DO PROGRAMA.
+	
+	
+	/***************************************************************
+	 * Entry Point!!
+	 * @param args
 	 */
 	public static void main(String[] args) {
 		
@@ -139,7 +157,5 @@ public class ServerAgenda extends JFrame implements ActionListener{
 		ServerAgenda.addToInfoConsole("Forçada a porta: "+serverPort );
 		ServerAgenda.addToInfoConsole("Inicializado");
 	}
-
-
 	
 }

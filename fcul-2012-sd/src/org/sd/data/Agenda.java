@@ -24,7 +24,9 @@ public class Agenda implements Serializable , Writable, IAgenda{
 		load();
 	}
 	
-	
+	/************************************************************++
+	 * Dump agenda records
+	 */
 	public void agendaDump (){
 		for (Evento e: agenda){
 			ServerAgenda.addToInfoConsole(e.toString());
@@ -36,7 +38,7 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	 * @param newEvento new evento
 	 * @return true if removed.
 	 */
-	public boolean removesEvento (Evento newEvento){
+	public synchronized boolean removesEvento (Evento newEvento){
 		//goes find new element in agenda.
 		//returns false if not removed/exists.
 		return 	agenda.remove(newEvento);
@@ -48,7 +50,7 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	 * @param newEvento new evento
 	 * @return true if added.
 	 */
-	public boolean addEvento (Evento newEvento){
+	public synchronized boolean addEvento (Evento newEvento){
 		boolean exists = false;
 		
 		//goes find new element in agenda.
@@ -71,7 +73,7 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	 * @param existing Evento
 	 * @return true if added.
 	 */
-	public boolean alterEvento(Evento existingEvento, Evento newEvento) {
+	public synchronized boolean alterEvento(Evento existingEvento, Evento newEvento) {
 		//return true if remove and added
 		return agenda.remove(existingEvento) && agenda.add(newEvento); 
 	}
@@ -92,18 +94,12 @@ public class Agenda implements Serializable , Writable, IAgenda{
 
 	
 	/***********************************************************************
-	 * Loads agenda stored on file to memory
+	 * Loads agenda to memory
 	 */
 
 	public void load() {
 		ServerAgenda.addToInfoConsole("Loading agenda file from disk");
-		//this.agenda.addAll(IoOperations.loadAgendaFromFile(new File("agenda.obj")));
+		this.agenda.addAll(IoOperations.loadAgendaFromFile(new File("agenda.obj")));
 	}
-
-
-
-
-	
-
 	
 }
