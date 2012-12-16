@@ -1,6 +1,6 @@
 package org.sd.common.messages;
 
-import org.sd.common.Protocol;
+import org.sd.protocol.Protocol;
 
 public class AddEventMessage extends Message {
 

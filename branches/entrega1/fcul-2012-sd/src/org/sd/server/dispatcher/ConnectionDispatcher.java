@@ -1,6 +1,5 @@
 package org.sd.server.dispatcher;
 
-import org.sd.common.IDispatcher;
 import org.sd.server.connection.ConnectionPool;
 import org.sd.server.connection.ConnectionPoolProxy;
 import org.sd.server.connection.ConnectionWorker;

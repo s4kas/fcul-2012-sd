@@ -27,7 +27,7 @@ public class ServerFacade implements IAgentFacade {
 	
 	private boolean isListening = true;
 
-	public void initialize(IConfig serverConfiguration) {
+	public void initialize(IConfig serverConfiguration, ServerDispatcher runningServerDispatcher) {
 		if (!(serverConfiguration instanceof ServerConfig)) {
 			//TODO BM tratar erros
 		}
@@ -41,7 +41,7 @@ public class ServerFacade implements IAgentFacade {
 		
 		//start the MessagePool
 		messagePool = MessagePoolProxy.getInstance();
-		messagePool.addDispatchers(new ServerDispatcher(), new ConnectionDispatcher());
+		messagePool.addDispatchers(runningServerDispatcher, new ConnectionDispatcher());
 		
 		try {
 			//start the server socket
@@ -85,4 +85,6 @@ public class ServerFacade implements IAgentFacade {
 		//server stops listening for connections
 		isListening = false;
 	}
+
+
 }

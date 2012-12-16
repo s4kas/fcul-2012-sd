@@ -4,12 +4,16 @@ import org.sd.common.IConfig;
 
 public class ServerConfig implements IConfig {
 	
-	private int serverPort;
+	private int serverPort ;
 	private int connectionTimeout;
 	private int nThreads;
 	
+	
+	
+	
 	public boolean loadConfig() {
 		//FIXME BM implement loadProperties
+		
 		this.serverPort = 1500;
 		this.connectionTimeout = 15000;
 		this.nThreads = 10;
@@ -31,7 +35,7 @@ public class ServerConfig implements IConfig {
 	}
 
 	public boolean saveConfig() {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 

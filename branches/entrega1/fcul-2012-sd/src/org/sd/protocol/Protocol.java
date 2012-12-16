@@ -1,4 +1,4 @@
-package org.sd.common;
+package org.sd.protocol;
 
 public enum Protocol{
 	

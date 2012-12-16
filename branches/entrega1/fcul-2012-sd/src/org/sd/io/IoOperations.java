@@ -1,9 +1,5 @@
 package org.sd.io;
 
-/**
- *
- * @author tpires
- */
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +12,17 @@ import java.io.ObjectOutputStream;
 import java.io.EOFException;
 
 import org.sd.data.Evento;
+import org.sd.server.ServerConfig;
 
 public class IoOperations {
 
     /*****************************************************************************
-     * Abre o ficheiro de agenda
-     * @param fileName ficheiro 
-     * @return Lista<evento> Lista de eventos.
+     * Loads Agenda from file 
+     * @param fileName 
+     * @return List<evento> list of eventos (agenda).
      */ 
     @SuppressWarnings({ "finally", "resource" })
-    public static List loadAgendaFromFile(File fileName) {
+    public static List<Evento> loadAgendaFromFile(File fileName) {
 
         Object recievedData = null;
         ObjectInputStream oIn = null;
@@ -58,9 +55,9 @@ public class IoOperations {
     }
 
     /*********************************************************************************
-     * Grava uma lista de eventos num ficheiro.
-     * @param list<evento> uma lista de eventos
-     * @param filename nome do ficheiro a gravar.
+     * commit eventos list (agenda) to file
+     * @param list<evento> list of eventos composing an Agenda
+     * @param filename to record data on
      */
     public static void saveAgendaToFile(List<Evento> list, File filename) throws IOException {
         ObjectOutputStream oOut = null;
