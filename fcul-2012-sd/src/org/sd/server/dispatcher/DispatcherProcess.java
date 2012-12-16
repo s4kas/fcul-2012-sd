@@ -6,8 +6,10 @@ import java.util.Observer;
 import org.sd.common.messages.IMessage;
 import org.sd.common.messages.Message;
 import org.sd.data.Agenda;
-import org.sd.protocol.A_RCV_AG;
+import org.sd.data.Evento;
+import org.sd.protocol.A_RCV_AG_MESSAGE;
 import org.sd.protocol.Protocol;
+import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
@@ -24,14 +26,35 @@ public class DispatcherProcess extends Observable implements Runnable {
 	private MessagePool messagePool = MessagePoolProxy.getInstance();
 	private IMessage send;
 	
+	
+	
 	/*************************************************************
-	 * 
-	 * @param P
-	 * @return
+	 * Validates Payload
+	 * @param Protocol
+	 * @return true if payloadValid
 	 */
-	private boolean isValid (Protocol P){
+	private boolean isProtocolValid (Protocol p, Object content){
 		//CHECK STATE FLAGS
-		return true;
+		boolean isValid=false;
+		
+		switch (p){
+		case C_S_REQ_AAD: if (message.getContent() instanceof Evento) isValid=true;break;
+		case S_S_RCV_TLOG:break;
+		case S_S_RCV_PROMO:break;
+		case S_S_RCV_HS:break;
+		case S_RCV_SL:break;
+		case S_C_RCV_AAD:break;
+		
+		//no payload required. Ignore payload
+		case C_S_REQ_HS:
+		case S_S_REQ_PROMO:
+		case S_S_REQ_HS:
+		case S_S_REQ_TLOG:
+		case S_REQ_AG:
+		case C_REQ_AG:
+		case A_RCV_RDT: isValid=true; break;
+		}
+		return isValid;
 	}
 	
 	
@@ -47,12 +70,11 @@ public class DispatcherProcess extends Observable implements Runnable {
 		System.out.println(protocol + " - " + message.getContent());
 		this.message= message;
 		this.agenda = a;
-		
-		if (isValid(protocol)){
-			this.protocol =protocol;  
-			auth=true;
+		//Validate protocol content.
+		if (isProtocolValid(protocol,message.getContent())){
+			this.auth=true;
 		}
-		//TODO TP: STATE CHANGES?
+
 	}
 
 	
@@ -71,15 +93,22 @@ public class DispatcherProcess extends Observable implements Runnable {
 		System.out.println(protocol + " - " + message.getContent());
 		
 		switch ( protocol ){
+		
 			case C_REQ_AG:
-				messagePool.takeOutgoingConnection().setMessage(new A_RCV_AG(agenda));
+				messagePool.takeOutgoingConnection().setMessage(new A_RCV_AG_MESSAGE(agenda));
 			break;
-			case C_S_REQ_AAD:
-				
+
+			case C_S_REQ_CRT:
+				if (agenda.addEvento( (Evento) message.getContent() )){
+					messagePool.takeOutgoingConnection().setMessage(new S_C_RCV_AAD_MESSAGE("Sucessfuly added, ...so says the server..!"));
+				} else {
+					messagePool.takeOutgoingConnection().setMessage(new S_C_RCV_AAD_MESSAGE("Cannot Comply! i got Orders, you know?"));
+				}
 			break;
-			
 			
 			case S_S_REQ_TLOG:break;
+			case C_S_REQ_ALT:break;
+			case C_S_REQ_DEL:break;
 			case S_S_REQ_PROMO:break;
 			case S_S_REQ_HS:break;
 			case S_S_RCV_TLOG:break;
@@ -89,7 +118,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 			case S_RCV_SL:break;
 			case S_C_RCV_AAD:break;
 			case C_S_REQ_HS:break;
-			
 			case A_RCV_RDT:break;
 		default:
 			break;
