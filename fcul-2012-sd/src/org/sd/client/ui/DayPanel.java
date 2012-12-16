@@ -12,6 +12,7 @@ import java.util.Calendar;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,6 +20,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import org.sd.client.ClientController;
 
 public class DayPanel extends JPanel implements ActionListener {
 
@@ -30,6 +33,7 @@ public class DayPanel extends JPanel implements ActionListener {
 	ButtonGroup radioGroup;
 	JTextField subject;
 	JTextArea content;
+	JComboBox startHours, startMinutes, endHours, endMinutes;
 	
 	public DayPanel(int day, int month, int year) {
 		c = new GridBagConstraints();
@@ -126,33 +130,73 @@ public class DayPanel extends JPanel implements ActionListener {
 		
 		JPanel addEventPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-		gbc.fill = GridBagConstraints.VERTICAL;
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		gbc.gridy = gbc.gridx = 0;
+		gbc.weightx = gbc.weighty = 1.0;
 		
+		JLabel startLabel = new JLabel("Inicio",JLabel.CENTER);
+		gbc.gridy = 0;
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		addEventPanel.add(startLabel,gbc);
+		
+		JLabel endLabel = new JLabel("Fim",JLabel.CENTER);
+		gbc.gridy = 0;
+		gbc.gridx = 2;
+		gbc.gridwidth = 2;
+		addEventPanel.add(endLabel,gbc);
+		
+		startHours = new JComboBox(UIConstants.HOURS);
+		startHours.setSelectedIndex(0);
+		gbc.gridy = 1;
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		addEventPanel.add(startHours,gbc);
+		
+		startMinutes = new JComboBox(UIConstants.MINUTES);
+		startMinutes.setSelectedIndex(0);
+		gbc.gridx = 2;
+		addEventPanel.add(startMinutes,gbc);
+		
+		endHours = new JComboBox(UIConstants.HOURS);
+		endHours.setSelectedIndex(0);
+		gbc.gridy = 1;
+		gbc.gridx = 3;
+		gbc.gridwidth = 1;
+		addEventPanel.add(endHours,gbc);
+		
+		endMinutes = new JComboBox(UIConstants.MINUTES);
+		endMinutes.setSelectedIndex(0);
+		gbc.gridx = 4;
+		addEventPanel.add(endMinutes,gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 1;
 		JLabel subjectLabel = new JLabel("Título: ");
 		addEventPanel.add(subjectLabel,gbc);
 		subject = new JTextField(22);
 		gbc.gridx = 1;
+		gbc.gridwidth = 4;
 		addEventPanel.add(subject,gbc);
 		
-		gbc.gridy = 1;
 		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 1;
 		JLabel contentLabel = new JLabel("Evento: ");
 		addEventPanel.add(contentLabel,gbc);
+		
 		gbc.gridx = 1;
+		gbc.gridwidth = 4;
 		content = new JTextArea();
-		content.setPreferredSize(new Dimension(245,240));
+		content.setPreferredSize(new Dimension(245,250));
 		content.setLineWrap(true);
 		content.setWrapStyleWord(true);
 		addEventPanel.add(content,gbc);
+		
 		add(addEventPanel,c);
 		
 		//actions
 		c.anchor = GridBagConstraints.PAGE_END;
-		c.gridy = 2;
+		c.gridy = 4;
 		
 		JPanel actionsPanel = new JPanel();
 		confirmAddEvent = new JButton("Adicionar Evento");
@@ -259,6 +303,31 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro adicionar evento",
 				    JOptionPane.ERROR_MESSAGE);
 			return;
+		}
+		
+		int startHour = Integer.parseInt(startHours.getSelectedItem().toString());
+		int startMinute = Integer.parseInt(startMinutes.getSelectedItem().toString());
+		int endHour = Integer.parseInt(endHours.getSelectedItem().toString());
+		int endMinute = Integer.parseInt(endMinutes.getSelectedItem().toString());
+		String title = subject.getText();
+		String contentText = content.getText();
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
+		
+		boolean result = ClientController.addEvent(day, month, year, 
+				startHour, startMinute, endHour, endMinute, title, contentText);
+		
+		if (result) {
+			JOptionPane.showMessageDialog(null,
+				    "Evento inserido com sucesso.",
+				    "Sucesso adicionar evento",
+				    JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(null,
+				    "Não foi possível inserir o evento.",
+				    "Erro adicionar evento",
+				    JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
