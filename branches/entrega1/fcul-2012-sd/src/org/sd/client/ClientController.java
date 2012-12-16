@@ -35,6 +35,7 @@ public class ClientController {
 		if (clientFacade == null) {
 			clientFacade = new ClientFacade();
 		}
+		
 		clientFacade.initialize(ClientConfigProxy.getConfig());
 		updateStatus();
 	}

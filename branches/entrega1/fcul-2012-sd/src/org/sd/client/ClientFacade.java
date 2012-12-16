@@ -29,21 +29,39 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		//get the client config
 		clientConfig = (ClientConfig) clientConfiguration;
 		
-		try {
-			//start remote socket
-			clientSocket = new Socket(clientConfig.getClientAddress(), clientConfig.getClientPort());
+		String[] servers = clientConfig.getClientAddress();
+		int[] ports = clientConfig.getClientPort();
+		int tries = 0;
+		
+		while (!isConnected && tries < servers.length) {
+			String server = servers[tries];
+			int port = ports[tries];
+		
+			try {
+				//start remote socket
+				clientSocket = new Socket(server,port);
+				
+				//set timeout
+				clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
+				
+				//set connected
+				this.isConnected = true;
+				
+			} catch (UnknownHostException e) {
+				//set disconnected
+				this.isConnected = false;
+				e.printStackTrace();
+			} catch (IOException e) {
+				//set disconnected
+				this.isConnected = false;
+				e.printStackTrace();
+			}
 			
-			//set timeout
-			clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
-			
-			this.isConnected = true;
-			
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			terminate();
-			return;
-		} catch (IOException e) {
-			e.printStackTrace();
+			tries++;
+		}
+		
+		//nao consegui ligar
+		if (!isConnected) {
 			terminate();
 			return;
 		}
