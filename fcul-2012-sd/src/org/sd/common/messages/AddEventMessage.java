@@ -1,19 +1,20 @@
 package org.sd.common.messages;
 
+import org.sd.data.Evento;
 import org.sd.protocol.Protocol;
 
 public class AddEventMessage extends Message {
 
 	private static final long serialVersionUID = 1206263065834076604L;
-	private org.sd.common.messages.Event event;
+	private Evento event;
 	
-	public AddEventMessage(Event event) {
+	public AddEventMessage(Evento event) {
 		this.event = event;
 		this.messageProtocol = Protocol.C_S_REQ_ADD;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Event getContent() {
+	public Evento getContent() {
 		return event;
 	}
 

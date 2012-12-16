@@ -7,8 +7,8 @@ import javax.swing.SwingUtilities;
 
 import org.sd.client.ui.ClientUI;
 import org.sd.common.messages.AddEventMessage;
-import org.sd.common.messages.Event;
 import org.sd.common.messages.IMessage;
+import org.sd.data.Evento;
 
 public class ClientController {
 	
@@ -40,8 +40,18 @@ public class ClientController {
 		updateStatus();
 	}
 	
+	private void sendHandShake() {
+		
+	}
+	
+	private void sendAgendaRequest() {
+		
+	}
+	
 	public static void disconnect() {
-		clientFacade.terminate();
+		if (clientFacade != null) {
+			clientFacade.terminate();
+		}
 		updateStatus();
 	}
 	
@@ -61,17 +71,14 @@ public class ClientController {
 		}
 		
 		//create new event message
-		Event ev = new Event(day,month,year,startHour, startMinutes, endHour,
-				endMinutes, title,content);
+		Evento ev = new Evento(year,month,day,startHour, startMinutes,
+				year,month,day,endHour,endMinutes, 
+				(title + " - " + content),"");
 		AddEventMessage message = new AddEventMessage(ev);
+		
 		//try to send the message
 		clientFacade.sendMessage(message);
 		
-		//response message ?
-		IMessage receivedMessage = clientFacade.receiveMessage();
-		if (receivedMessage == null) {
-			return false;
-		}
 		return true;
 	}
 	
@@ -84,7 +91,7 @@ public class ClientController {
 	}
 	
 	public static List getEventsForDayMonthYear(int day, int month, int year) {
-		System.out.println(day+" "+ month+" "+year);
+		//System.out.println(day+" "+ month+" "+year);
 		return new ArrayList();
 	}
 	

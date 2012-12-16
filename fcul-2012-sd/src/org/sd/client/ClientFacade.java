@@ -10,14 +10,15 @@ import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
 import org.sd.common.connection.Connection;
 import org.sd.common.messages.IMessage;
-import org.sd.server.dispatcher.ServerDispatcher;
 
 public class ClientFacade implements IAgentFacade, ICommunicator {
 	
 	private Socket clientSocket;
 	private ClientConfig clientConfig;
+	private IMessage receivedMessage = null;
 	public boolean isConnected = false;
 	public boolean isHandShaked = false;
+	private ClientDispatchable clientDispatchable;
 	
 	private Connection connection;
 
@@ -26,6 +27,10 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		if (!(clientConfiguration instanceof ClientConfig)) {
 			//TODO BM tratar erros
 		}
+		
+		//start the dispatching process
+		clientDispatchable = new ClientDispatchable();
+		clientDispatchable.addObserver(new ClientDispatcher());
 		
 		//get the client config
 		clientConfig = (ClientConfig) clientConfiguration;
@@ -63,10 +68,19 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			terminate();
 			return;
 		}
+			
+		(new Thread() {
+			public void run() {
+				while (isConnected) {
+					//start new connection
+					connection = new Connection(clientSocket);
+					IMessage receivedMessage = receiveMessage();
+					clientDispatchable.postMessage(receivedMessage);
+				}
+			}
+		}).start();
 		
-		//start new connection
-		connection = new Connection(clientSocket);
-		
+		/*
 		//init and send a new message
 		IMessage handShake = new HandShakeMessage();
 		sendMessage(handShake);
@@ -75,9 +89,11 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		if (receivedMessage != null) {
 			isHandShaked = true;
 		}
+		*/
 	}
 	
 	public void sendMessage(final IMessage message) {
+		
 		(new Thread() {
 
 			public void run() {
@@ -95,21 +111,16 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	}
 
 	public IMessage receiveMessage() {
-		(new Thread() {
-			public void run() {
-				try {
-					connection.getInputStream().readObject();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}).start();
-		
-		return connection.getMessage();
+		try {
+			return receivedMessage = (IMessage) connection.getInputStream().readObject();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public void terminate() {

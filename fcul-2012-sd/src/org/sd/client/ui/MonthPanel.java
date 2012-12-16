@@ -67,7 +67,7 @@ public class MonthPanel extends JPanel implements ActionListener {
 			JButton button = new JButton(String.valueOf(i+1));
 					
 			//teste
-			if(ClientController.eventsForDayMonthYear(i+1, calendar.get(Calendar.MONTH)+1, 
+			if(ClientController.eventsForDayMonthYear(i, calendar.get(Calendar.MONTH), 
 					calendar.get(Calendar.YEAR))) {
 				button.setForeground(Color.BLACK);
 			} else {

@@ -320,12 +320,12 @@ public class DayPanel extends JPanel implements ActionListener {
 		
 		if (result) {
 			JOptionPane.showMessageDialog(null,
-				    "Evento inserido com sucesso.",
+				    "Evento enviado com sucesso.",
 				    "Sucesso adicionar evento",
 				    JOptionPane.INFORMATION_MESSAGE);
 		} else {
 			JOptionPane.showMessageDialog(null,
-				    "Não foi possível inserir o evento.",
+				    "Não foi possível enviar o evento.",
 				    "Erro adicionar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
