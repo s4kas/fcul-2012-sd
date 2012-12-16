@@ -17,9 +17,8 @@ public class ServerDispatcher implements IDispatcher {
 	
 	private ArrayList <DispatcherProcess> dpList = new ArrayList<DispatcherProcess>();
 	private MessagePool messagePool = MessagePoolProxy.getInstance();
-	private Agenda agenda; 
-	
-	
+	private Agenda agenda;
+		
 	public ServerDispatcher (Agenda a){
 		this.agenda=a;
 	}
