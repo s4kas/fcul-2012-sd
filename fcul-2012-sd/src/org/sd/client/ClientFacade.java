@@ -42,9 +42,6 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 				//start remote socket
 				clientSocket = new Socket(server,port);
 				
-				//set timeout
-				clientSocket.setSoTimeout(clientConfig.getConnectionTimeout());
-				
 				//set connected
 				this.isConnected = true;
 				
@@ -80,32 +77,39 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		}
 	}
 	
-	public void sendMessage(IMessage message) {
-		if (connection == null || !isConnected) {
-			initialize(ClientConfigProxy.getConfig());
-		}
-		
-		try {
-			//write msg
-			connection.getOutputStream().writeObject(message);
-			//receive msg
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void sendMessage(final IMessage message) {
+		(new Thread() {
+
+			public void run() {
+				try {
+					//write msg
+					connection.getOutputStream().writeObject(message);
+					//receive msg
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+			}
+					
+		}).start();
 	}
 
 	public IMessage receiveMessage() {
-		try {
-			return (IMessage) connection.getInputStream().readObject();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		(new Thread() {
+			public void run() {
+				try {
+					connection.getInputStream().readObject();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
+		
+		return connection.getMessage();
 	}
 
 	public void terminate() {

@@ -7,6 +7,7 @@ import java.net.Socket;
 import org.sd.common.IAgentFacade;
 import org.sd.common.IConfig;
 import org.sd.common.connection.Connection;
+import org.sd.data.Agenda;
 import org.sd.server.connection.ConnectionPool;
 import org.sd.server.connection.ConnectionPoolProxy;
 import org.sd.server.connection.ConnectionWorker;
@@ -27,7 +28,7 @@ public class ServerFacade implements IAgentFacade {
 	
 	private boolean isListening = true;
 
-	public void initialize(IConfig serverConfiguration, ServerDispatcher runningServerDispatcher) {
+	public void initialize(IConfig serverConfiguration) {
 		if (!(serverConfiguration instanceof ServerConfig)) {
 			//TODO BM tratar erros
 		}
@@ -41,28 +42,35 @@ public class ServerFacade implements IAgentFacade {
 		
 		//start the MessagePool
 		messagePool = MessagePoolProxy.getInstance();
-		messagePool.addDispatchers(runningServerDispatcher, new ConnectionDispatcher());
-		
-		try {
-			//start the server socket
-			serverSocket = new ServerSocket(serverConfig.getServerPort());
-			
-			while (isListening) {
-				//start the client connection
-				clientSocket = serverSocket.accept();
+		messagePool.addDispatchers(new ServerDispatcher(new Agenda()), new ConnectionDispatcher());
 				
-				//define a timeout
-				//clientSocket.setSoTimeout(serverConfig.getConnectionTimeout());
+		(new Thread() {
+			public void run() {
+				//start the server socket
+				try {
+					serverSocket = new ServerSocket(serverConfig.getServerPort());
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					terminate();
+				}
 				
-				//add the connection to the queue
-				Connection connection = new Connection(clientSocket);
-				connectionPool.execute(new ConnectionWorker(connection, WorkType.RECEIVE));
+				while (isListening) {
+					try {		
+						//start the client connection
+						clientSocket = serverSocket.accept();
+						
+						//add the connection to the queue
+						Connection connection = new Connection(clientSocket);
+						connectionPool.execute(new ConnectionWorker(connection, WorkType.RECEIVE));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						terminate();
+					}
+				}	
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			terminate();
-		}
+		}).start();
 	}
 
 	public void terminate() {
@@ -85,6 +93,4 @@ public class ServerFacade implements IAgentFacade {
 		//server stops listening for connections
 		isListening = false;
 	}
-
-
 }
