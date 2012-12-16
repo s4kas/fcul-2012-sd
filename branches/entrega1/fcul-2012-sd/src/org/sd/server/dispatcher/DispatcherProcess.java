@@ -1,8 +1,11 @@
 package org.sd.server.dispatcher;
 
+import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.sd.common.connection.Connection;
+import org.sd.common.connection.IConnection;
 import org.sd.common.messages.IMessage;
 import org.sd.common.messages.Message;
 import org.sd.data.Agenda;
@@ -16,15 +19,15 @@ import org.sd.server.message.MessagePoolProxy;
 public class DispatcherProcess extends Observable implements Runnable {
 
 	private boolean processing;
-	private IMessage message;
 	private boolean auth= false;
 	private Protocol protocol; 
-	private Agenda agenda;
+	private Agenda thisAgenda;
+	private IConnection thisConnection;
+	
 	private boolean stateFlags_Promoting;
 	private boolean stateFlags_Primary;
 	private boolean stateFlags_Secondary;
 	private MessagePool messagePool = MessagePoolProxy.getInstance();
-	private IMessage send;
 	
 	
 	
@@ -38,7 +41,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 		boolean isValid=false;
 		
 		switch (p){
-		case C_S_REQ_AAD: if (message.getContent() instanceof Evento) isValid=true;break;
+		case C_S_REQ_CRT:
+		case C_S_REQ_ALT:
+		case C_S_REQ_DEL:if (thisConnection.getMessage().getContent() instanceof Evento) isValid=true;break;
+			
 		case S_S_RCV_TLOG:break;
 		case S_S_RCV_PROMO:break;
 		case S_S_RCV_HS:break;
@@ -63,20 +69,22 @@ public class DispatcherProcess extends Observable implements Runnable {
 	 * @param message
 	 * @throws myContentException
 	 */
-	public DispatcherProcess (IMessage message, Agenda a) throws Exception {
+	public DispatcherProcess (IConnection aConnection, Agenda aAgenda) throws Exception {
 		
-		//Get protocol
-		Protocol protocol = message.getHeader();
-		System.out.println(protocol + " - " + message.getContent());
-		this.message= message;
-		this.agenda = a;
+		this.thisAgenda = aAgenda;
+		this.thisConnection = aConnection;
+		Protocol protocol = thisConnection.getMessage().getHeader();
+		System.out.println(protocol + " - " + protocol);
+		
 		//Validate protocol content.
-		if (isProtocolValid(protocol,message.getContent())){
+		if (isProtocolValid(protocol,thisConnection.getMessage().getContent())){
 			this.auth=true;
 		}
-
 	}
 
+	
+	
+	
 	
 	/******************************************
 	 * Check if is processing.
@@ -86,26 +94,32 @@ public class DispatcherProcess extends Observable implements Runnable {
 		return !processing;
 	}
 	
+	/*************************************************************
+	 * 
+	 */
 	public void run() {
+		String reply;
 		processing=true;
 		if (!auth) return;
 		
-		System.out.println(protocol + " - " + message.getContent());
-		
 		switch ( protocol ){
-		
+			//REQUEST FULL AGENDA UPDATE FROM CLIENT
 			case C_REQ_AG:
-				messagePool.takeOutgoingConnection().setMessage(new A_RCV_AG_MESSAGE(agenda));
+				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),thisConnection.getSocket()));
 			break;
-
+			//REQUEST ADD EVENTO FROM CLIENT
 			case C_S_REQ_CRT:
-				if (agenda.addEvento( (Evento) message.getContent() )){
-					messagePool.takeOutgoingConnection().setMessage(new S_C_RCV_AAD_MESSAGE("Sucessfuly added, ...so says the server..!"));
+				if (thisAgenda.addEvento( (Evento) thisConnection.getMessage().getContent())){
+					reply = "Sucessfuly added, ...so says the server..!";
+					
 				} else {
-					messagePool.takeOutgoingConnection().setMessage(new S_C_RCV_AAD_MESSAGE("Cannot Comply! i got Orders, you know?"));
+					reply = "Cannot Comply! i got Orders, you know?";
 				}
+				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),thisConnection.getSocket()));
+			
 			break;
 			
+			//REQUEST 
 			case S_S_REQ_TLOG:break;
 			case C_S_REQ_ALT:break;
 			case C_S_REQ_DEL:break;
@@ -122,11 +136,5 @@ public class DispatcherProcess extends Observable implements Runnable {
 		default:
 			break;
 			}
-
-
 	}
-
-
-	
-
 }
