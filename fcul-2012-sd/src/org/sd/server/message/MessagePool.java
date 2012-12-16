@@ -1,8 +1,15 @@
 package org.sd.server.message;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
+import java.util.List;
 
+import org.sd.common.connection.Connection;
 import org.sd.common.connection.IConnection;
+import org.sd.common.messages.IMessage;
+import org.sd.server.ServerConfigProxy;
 import org.sd.server.dispatcher.Dispatchable;
 import org.sd.server.dispatcher.ServerDispatcher;
 import org.sd.server.dispatcher.ConnectionDispatcher;
@@ -32,6 +39,22 @@ public class MessagePool extends Dispatchable {
 		
 		// TODO Auto-generated method stub
 		return true;
+	}
+	
+	public synchronized void postMultipleOutgoingConnection(IMessage message, List<String> outList) {
+		int port = ServerConfigProxy.getConfig().getServerPort();
+		
+		for (String out : outList) {
+			try {
+				incomingQueue.add(new Connection(message, new Socket(out,port)));
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
