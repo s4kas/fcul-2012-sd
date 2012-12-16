@@ -15,6 +15,7 @@ public class S_C_RCV_AAD_MESSAGE extends Message implements Serializable{
 		text = s; 
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <T> T getContent() {
 		return (T) text;
 	}

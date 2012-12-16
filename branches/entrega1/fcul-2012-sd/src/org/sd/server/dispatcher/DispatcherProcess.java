@@ -124,31 +124,23 @@ public class DispatcherProcess extends Observable implements Runnable {
 			case C_REQ_AG:
 				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection.getSocket()));
 			break;
-			
+
 			//REQUEST ADD EVENTO FROM CLIENT
 			case C_S_REQ_ADD:
 				if (thisAgenda.addEvento( (Evento) currentConnection.getMessage().getContent())){
 					reply = "Sucessfuly added, ...so the master says..!";
-					//TODO: ADD TO ALOG
+					//ADD TO ALOG
 					currentActionLog.addMessage(currentConnection.getMessage());
-					//TODO: SEND S_S_RCV_ALOG TO ALL SERVERS.
-					
-					Iterator<String> it = currentServerList.listOfServers();
-					while (it.hasNext()){
-						//send a subset of Alog from this message position on log to the end of the log.  
-						messagePool.postOutgoingConnection(
-								new Connection(
-										new S_S_RCV_TLOG_MESSAGE(
-												currentActionLog.replayFrom(
-														currentConnection.getMessage()),new Socket().bind());	
-					}
-					
-
+					//SEND S_S_RCV_ALOG TO ALL SERVERS.
+					//send a subset of Alog from this message position on log to the end of the log.  
+						messagePool.postMultipleOutgoingConnection(new S_S_RCV_TLOG_MESSAGE(
+								currentActionLog.SubSetAfter(currentConnection.getMessage())),
+								currentServerList.listOfServers());
 				} else {
 					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
 				}
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection.getSocket()));
-				
+
 			break;
 			
 			//REQUEST 

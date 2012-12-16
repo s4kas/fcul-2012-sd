@@ -11,9 +11,10 @@ public class A_RCV_AG_MESSAGE extends Message implements Serializable{
 	private Agenda agenda;
 	
 	public A_RCV_AG_MESSAGE(Agenda a) {
-		messageProtocol = Protocol.C_REQ_AG;
+		messageProtocol = Protocol.A_RCV_AG;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <T> T getContent() {
 		return (T) agenda;
 	}
