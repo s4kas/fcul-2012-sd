@@ -1,6 +1,7 @@
 package org.sd.data;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class ServerList implements Serializable {
@@ -17,6 +18,9 @@ public class ServerList implements Serializable {
 		return serverIpList.getFirst();
 	}
 
+	public Iterator it (){
+		return serverIpList.iterator();
+	}
 	public String giveTail(){
 		//LastServer accepts other server.
 		return serverIpList.getLast();

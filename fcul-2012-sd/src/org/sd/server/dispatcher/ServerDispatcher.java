@@ -1,11 +1,16 @@
 package org.sd.server.dispatcher;
 
 
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import org.sd.common.connection.IConnection;
 import org.sd.common.messages.IMessage;
+import org.sd.data.ActionLog;
 import org.sd.data.Agenda;
+import org.sd.data.ClientList;
+import org.sd.data.ServerList;
 import org.sd.protocol.Protocol;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
@@ -15,15 +20,20 @@ import org.sd.server.message.MessagePoolProxy;
  */
 public class ServerDispatcher implements IDispatcher {
 	
-	private ArrayList <DispatcherProcess> dpList = new ArrayList<DispatcherProcess>();
-	private MessagePool messagePool = MessagePoolProxy.getInstance();
+	private ArrayList <DispatcherProcess> dpList 					= new ArrayList<DispatcherProcess>();
+	private MessagePool messagePool 								= MessagePoolProxy.getInstance();
 	private Agenda agenda;
+	private ServerList currentServerList;
+	private ClientList currentClientList;
+	private ActionLog currentActionLog;
 		
 	public ServerDispatcher (Agenda a){
 		this.agenda=a;
+		currentServerList = new ServerList("Localhost");
+		currentActionLog = new ActionLog();
+		currentClientList = new ClientList();
 	}
 
-	
 	/*****************************************************
 	 * Removes dead or timeout dispatcher process from memory 
 	 */
@@ -54,7 +64,11 @@ public class ServerDispatcher implements IDispatcher {
 				 
 		//Goes for it.
 		try{
-			DispatcherProcess dp =  new DispatcherProcess(thisconnection, agenda);		
+			DispatcherProcess dp =  new DispatcherProcess(thisconnection,
+															agenda,
+															currentServerList,
+															currentClientList,
+															currentActionLog);		
 			dp.run();
 			dpList.add(dp);
 		} catch (Exception e){
