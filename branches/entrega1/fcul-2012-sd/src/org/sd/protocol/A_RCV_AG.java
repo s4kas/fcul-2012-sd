@@ -3,12 +3,12 @@ package org.sd.protocol;
 import org.sd.common.messages.Message;
 import org.sd.data.Agenda;
 
-public class C_REQ_AG extends Message{
+public class A_RCV_AG extends Message{
 
 	private static final long serialVersionUID = -86464047223846857L;
 	private Agenda agenda;
 	
-	public C_REQ_AG(Agenda a) {
+	public A_RCV_AG(Agenda a) {
 		messageProtocol = Protocol.C_REQ_AG;
 	}
 	
