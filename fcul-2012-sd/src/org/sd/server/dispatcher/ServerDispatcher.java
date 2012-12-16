@@ -3,6 +3,7 @@ package org.sd.server.dispatcher;
 
 import java.util.ArrayList;
 
+import org.sd.common.connection.IConnection;
 import org.sd.common.messages.IMessage;
 import org.sd.data.Agenda;
 import org.sd.protocol.Protocol;
@@ -48,18 +49,17 @@ public class ServerDispatcher implements IDispatcher {
 		//CLEAN UP REFERENCE TO ENDED THREADS ?? 
 		cleanUp();
 		//Message to process
-		IMessage message = (messagePool.takeIncomingConnection()).getMessage();
+		
+		IConnection  thisconnection = messagePool.takeIncomingConnection();
 		//Get protocol
 				 
-		Protocol protocol = message.getHeader();
-		System.out.println(protocol + " - " + message.getContent());
 		//Goes for it.
 		try{
-			DispatcherProcess dp =  new DispatcherProcess(message, agenda);		
+			DispatcherProcess dp =  new DispatcherProcess(thisconnection, agenda);		
 			dp.run();
 			dpList.add(dp);
 		} catch (Exception e){
-			System.out.println(protocol + " - couldnt Swalow this one!");
+			System.out.println(thisconnection.toString()+ " - couldnt Swalow this one!");
 		}
 	}
 }
