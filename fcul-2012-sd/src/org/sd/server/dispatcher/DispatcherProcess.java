@@ -83,9 +83,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 	}
 
 	
-	
-	
-	
 	/******************************************
 	 * Check if is processing.
 	 * @return
@@ -110,13 +107,15 @@ public class DispatcherProcess extends Observable implements Runnable {
 			//REQUEST ADD EVENTO FROM CLIENT
 			case C_S_REQ_ADD:
 				if (thisAgenda.addEvento( (Evento) thisConnection.getMessage().getContent())){
-					reply = "Sucessfuly added, ...so says the server..!";
-					
+					reply = "Sucessfuly added, ...so the master says..!";
+					//TODO: ADD TO ALOG
+					//TODO: SEND S_S_RCV_ALOG TO ALL SERVERS.
+
 				} else {
-					reply = "Cannot Comply! i got Orders, you know?";
+					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
 				}
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),thisConnection.getSocket()));
-			
+				
 			break;
 			
 			//REQUEST 

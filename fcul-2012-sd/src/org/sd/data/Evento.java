@@ -1,11 +1,13 @@
 package org.sd.data;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import org.sd.server.ServerAgenda;
 
-public final class Evento implements Cloneable{
+public final class Evento implements Serializable ,Cloneable{
 
+	private static final long serialVersionUID = 5789258183400060095L;
 	private Calendar starts;
 	private Calendar ends;
 	private String descript;
