@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
+import org.sd.client.ClientController;
+
 public class MonthPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
@@ -65,7 +67,8 @@ public class MonthPanel extends JPanel implements ActionListener {
 			JButton button = new JButton(String.valueOf(i+1));
 					
 			//teste
-			if(i == 7) {
+			if(ClientController.eventsForDayMonthYear(i+1, calendar.get(Calendar.MONTH)+1, 
+					calendar.get(Calendar.YEAR))) {
 				button.setForeground(Color.BLACK);
 			} else {
 				button.setForeground(Color.GRAY);

@@ -1,5 +1,8 @@
 package org.sd.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.SwingUtilities;
 
 import org.sd.client.ui.ClientUI;
@@ -29,7 +32,9 @@ public class ClientController {
 	
 	public static void connect() {
 		//start connection to server
-		clientFacade = new ClientFacade();
+		if (clientFacade == null) {
+			clientFacade = new ClientFacade();
+		}
 		clientFacade.initialize(ClientConfigProxy.getConfig());
 		updateStatus();
 	}
@@ -49,10 +54,19 @@ public class ClientController {
 	
 	public static boolean addEvent(int day, int month, int year, int startHour,
 			int startMinutes, int endHour, int endMinutes, String title, String content) {
+		//not connected
+		if (clientFacade == null) {
+			return false;
+		}
+		
+		//create new event message
 		Event ev = new Event(day,month,year,startHour, startMinutes, endHour,
 				endMinutes, title,content);
 		AddEventMessage message = new AddEventMessage(ev);
+		//try to send the message
 		clientFacade.sendMessage(message);
+		
+		//response message ?
 		IMessage receivedMessage = clientFacade.receiveMessage();
 		if (receivedMessage == null) {
 			return false;
@@ -66,5 +80,14 @@ public class ClientController {
 	
 	public static void receiveMessage(IMessage message) {
 		
+	}
+	
+	public static List getEventsForDayMonthYear(int day, int month, int year) {
+		System.out.println(day+" "+ month+" "+year);
+		return new ArrayList();
+	}
+	
+	public static boolean eventsForDayMonthYear(int day, int month, int year) {
+		return !getEventsForDayMonthYear(day,month,year).isEmpty();
 	}
 }
