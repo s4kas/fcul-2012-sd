@@ -3,6 +3,7 @@ package org.sd.data;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ServerList implements Serializable {
 
@@ -18,7 +19,14 @@ public class ServerList implements Serializable {
 		return serverIpList.getFirst();
 	}
 
-	public synchronized Iterator<String> listOfServers (){
+	public synchronized List <String> listOfServers(){
+		LinkedList <String> temp = new LinkedList<String>();
+		temp.addAll(serverIpList);
+		temp.remove("localhost");
+		return serverIpList;
+	}
+	
+	public synchronized Iterator<String> iteratorOfListOfServers (){
 		return serverIpList.iterator();
 	}
 	
