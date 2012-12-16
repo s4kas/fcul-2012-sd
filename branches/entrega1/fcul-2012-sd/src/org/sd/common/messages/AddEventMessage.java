@@ -9,7 +9,7 @@ public class AddEventMessage extends Message {
 	
 	public AddEventMessage(Event event) {
 		this.event = event;
-		this.messageProtocol = Protocol.C_S_REQ_AAD;
+		this.messageProtocol = Protocol.C_S_REQ_ADD;
 	}
 	
 	@SuppressWarnings("unchecked")
