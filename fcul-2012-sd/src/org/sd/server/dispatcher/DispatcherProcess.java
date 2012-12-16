@@ -41,7 +41,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		boolean isValid=false;
 		
 		switch (p){
-		case C_S_REQ_CRT:
+		case C_S_REQ_ADD:
 		case C_S_REQ_ALT:
 		case C_S_REQ_DEL:if (thisConnection.getMessage().getContent() instanceof Evento) isValid=true;break;
 			
@@ -108,7 +108,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),thisConnection.getSocket()));
 			break;
 			//REQUEST ADD EVENTO FROM CLIENT
-			case C_S_REQ_CRT:
+			case C_S_REQ_ADD:
 				if (thisAgenda.addEvento( (Evento) thisConnection.getMessage().getContent())){
 					reply = "Sucessfuly added, ...so says the server..!";
 					

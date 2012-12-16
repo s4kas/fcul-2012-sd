@@ -15,7 +15,7 @@ public enum Protocol{
 	S_C_RCV_AG,
 	S_C_RCV_AAD,
 	C_S_REQ_HS,
-	C_S_REQ_CRT,
+	C_S_REQ_ADD,
 	C_S_REQ_ALT,
 	C_S_REQ_DEL,
 	C_RCV_SL,
