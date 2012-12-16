@@ -10,6 +10,7 @@ import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
 import org.sd.common.connection.Connection;
 import org.sd.common.messages.IMessage;
+import org.sd.server.dispatcher.ServerDispatcher;
 
 public class ClientFacade implements IAgentFacade, ICommunicator {
 	
@@ -121,4 +122,5 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	    isConnected = false;
 	    isHandShaked = false;
 	}
+
 }

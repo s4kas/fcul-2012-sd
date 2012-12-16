@@ -6,7 +6,7 @@ import java.util.Observer;
 import org.sd.common.messages.IMessage;
 import org.sd.common.messages.Message;
 import org.sd.data.Agenda;
-import org.sd.protocol.C_REQ_AG;
+import org.sd.protocol.A_RCV_AG;
 import org.sd.protocol.Protocol;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
@@ -72,8 +72,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		
 		switch ( protocol ){
 			case C_REQ_AG:
-				//Evia 
-				messagePool.takeOutgoingConnection().setMessage(new C_REQ_AG(agenda));
+				messagePool.takeOutgoingConnection().setMessage(new A_RCV_AG(agenda));
 			break;
 			case C_S_REQ_AAD:
 				
