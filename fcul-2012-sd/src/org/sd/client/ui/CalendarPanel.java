@@ -15,16 +15,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.sd.client.ClientController;
+
 public class CalendarPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
 	private GridBagConstraints c;
-	private JPanel yearChoice, monthChoice;
+	private JPanel yearChoice, monthChoice, statusPanel;
 	private JScrollPane recentEvents;
 	private MonthPanel monthPanel;
 	private int month, year, yearLowLimit, yearSupLimit;
 	private Icon back, forward;
+	private JButton connectionButton;
+	private JLabel connectionLabel, handShakeLabel;
 
 	public CalendarPanel(int actualMonth, int actualYear, int yearLowLimit, 
 			int yearSupLimit) {
@@ -40,7 +44,19 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new GridBagLayout());
 	}
-	
+
+	public JButton getConnectionButton() {
+		return connectionButton;
+	}
+
+	public JLabel getConnectionLabel() {
+		return connectionLabel;
+	}
+
+	public JLabel getHandShakeLabel() {
+		return handShakeLabel;
+	}
+
 	public CalendarPanel construct() {
 		//constraints
 		this.c = new GridBagConstraints();
@@ -53,9 +69,10 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		addChoiceMonthPanel();
 		
 		//days Panel
-		this.monthPanel = new MonthPanel(year, month);
-		c.gridy = 2;
-		add(monthPanel.construct(), c);
+		addMonthPanel();
+		
+		//status Panel
+		addStatusPanel();
 		
 		//add events panel (right)
 		addRecentEventsPanel();
@@ -68,12 +85,18 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		this.construct();
 		this.revalidate();
 		this.repaint();
+		ClientController.updateStatus();
+	}
+	
+	private void addMonthPanel() {
+		this.monthPanel = new MonthPanel(year, month);
+		c.gridx = 0;
+		c.gridy = 2;
+		add(monthPanel.construct(), c);
 	}
 	
 	private void addChoiceYearPanel() {
 		this.yearChoice = new JPanel();
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.PAGE_START;
 		//regredir ano
 		yearChoice.add(getBackButton(),c);
 		//ano
@@ -82,12 +105,13 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		yearChoice.add(getForwardButton(),c);
 		
 		//add year panel to mainpanel
+		c.gridx = 0;
+		c.gridy = 0;
 		add(yearChoice,c);
 	}
 	
 	private void addChoiceMonthPanel() {
 		this.monthChoice = new JPanel();
-		c.gridy = 1;
 		//regredir mes
 		monthChoice.add(getBackButton(),c);
 		//mes
@@ -96,17 +120,52 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		monthChoice.add(getForwardButton(),c);
 		
 		//add month panel to main panel
+		c.gridx = 0;
+		c.gridy = 1;
 		add(monthChoice,c);
+	}
+	
+	private void addStatusPanel() {
+		statusPanel = new JPanel(new GridBagLayout());
+		c.gridx = 1;
+		c.gridy = 0;
+		c.gridheight = 2;
+		//Label top
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5,5,5,5);
+		gbc.anchor = GridBagConstraints.PAGE_START;
+		gbc.gridy = 0;
+		statusPanel.add(new JLabel("Estado Conexão"),gbc);
+		statusPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		connectionLabel = new JLabel();
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridy = 1;
+		statusPanel.add(connectionLabel,gbc);
+		
+		handShakeLabel = new JLabel();
+		gbc.anchor = GridBagConstraints.LAST_LINE_START;
+		gbc.gridy = 2;
+		statusPanel.add(handShakeLabel,gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		connectionButton = new JButton();
+		connectionButton.addActionListener(this);
+		statusPanel.add(connectionButton,gbc);
+		
+		statusPanel.setPreferredSize(new Dimension(250,80));
+		add(statusPanel, c);
 	}
 	
 	private void addRecentEventsPanel() {
 		JPanel re = new JPanel();
-		c.gridy = 0;
-		c.gridheight = 3;
+		c.gridx = 1;
+		c.gridy = 2;
 		//Label top
 		re.add(new JLabel("Actividades Recentes"));
 		re.setBorder(BorderFactory.createLineBorder(Color.black));
-		re.setPreferredSize(new Dimension(250,350));
+		re.setPreferredSize(new Dimension(250,250));
 		recentEvents = new JScrollPane(re);
 		add(recentEvents, c);
 	}
@@ -129,6 +188,15 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	
 	public void actionPerformed(ActionEvent ev) {
 		JButton jb = (JButton) ev.getSource();
+		
+		//efetuou ligacao/desligou
+		if (jb == this.connectionButton) {
+			if ("Ligar".equals(jb.getText())) {
+				ClientController.connect();
+			} else {
+				ClientController.disconnect();
+			}
+		}
 		
 		//mudou de ano
 		if (jb.getParent() == this.yearChoice) {
