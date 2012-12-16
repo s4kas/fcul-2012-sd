@@ -1,6 +1,7 @@
 package org.sd.server.dispatcher;
 
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -16,6 +17,7 @@ import org.sd.data.ServerList;
 import org.sd.protocol.A_RCV_AG_MESSAGE;
 import org.sd.protocol.Protocol;
 import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
+import org.sd.protocol.S_S_RCV_TLOG_MESSAGE;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
@@ -25,13 +27,13 @@ public class DispatcherProcess extends Observable implements Runnable {
 	private boolean auth= false;
 	private Protocol protocol; 
 	private Agenda thisAgenda;
-	private IConnection thisConnection;
+	private MessagePool messagePool = MessagePoolProxy.getInstance();
+	private IConnection currentConnection ;
 	
 	private boolean stateFlags_Promoting;
 	private boolean stateFlags_Primary;
 	private boolean stateFlags_Secondary;
-	private MessagePool messagePool = MessagePoolProxy.getInstance();
-	
+
 	private ServerList currentServerList;
 	private ClientList currentClientList;
 	private ActionLog currentActionLog;
@@ -82,16 +84,16 @@ public class DispatcherProcess extends Observable implements Runnable {
 								ActionLog al) throws Exception {
 		
 		this.thisAgenda = aAgenda;
-		this.thisConnection = aConnection;
+		this.currentConnection = aConnection;
 		this.currentActionLog = al;
 		this.currentServerList = sl;
 		this.currentClientList = cl;
 		
-		Protocol protocol = thisConnection.getMessage().getHeader();
+		Protocol protocol = currentConnection.getMessage().getHeader();
 		System.out.println(protocol + " - " + protocol);
 		
 		//Validate protocol content.
-		if (isProtocolValid(protocol,thisConnection.getMessage().getContent())){
+		if (isProtocolValid(protocol,currentConnection.getMessage().getContent())){
 			this.auth=true;
 		}
 	}
@@ -111,26 +113,41 @@ public class DispatcherProcess extends Observable implements Runnable {
 	public void run() {
 		String reply;
 		processing=true;
-		if (!auth) return;
+		
+		//INVALID MESSAGE CONTENT EXITS!!
+		if (!auth) {
+			processing=false;
+		}
 		
 		switch ( protocol ){
 			//REQUEST FULL AGENDA UPDATE FROM CLIENT
 			case C_REQ_AG:
-				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),thisConnection.getSocket()));
+				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection.getSocket()));
 			break;
+			
 			//REQUEST ADD EVENTO FROM CLIENT
 			case C_S_REQ_ADD:
-				if (thisAgenda.addEvento( (Evento) thisConnection.getMessage().getContent())){
+				if (thisAgenda.addEvento( (Evento) currentConnection.getMessage().getContent())){
 					reply = "Sucessfuly added, ...so the master says..!";
 					//TODO: ADD TO ALOG
-					
+					currentActionLog.addMessage(currentConnection.getMessage());
 					//TODO: SEND S_S_RCV_ALOG TO ALL SERVERS.
+					
+					Iterator<String> it = currentServerList.listOfServers();
+					while (it.hasNext()){
+						//send a subset of Alog from this message position on log to the end of the log.  
+						messagePool.postOutgoingConnection(
+								new Connection(
+										new S_S_RCV_TLOG_MESSAGE(
+												currentActionLog.replayFrom(
+														currentConnection.getMessage()),new Socket().bind());	
+					}
 					
 
 				} else {
 					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
 				}
-				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),thisConnection.getSocket()));
+				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection.getSocket()));
 				
 			break;
 			

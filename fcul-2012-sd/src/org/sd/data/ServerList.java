@@ -13,20 +13,21 @@ public class ServerList implements Serializable {
 		this.serverIpList.add(myIp);
 	}
 	
-	public String giveHead (){
+	public String givePrimary (){
 		//usualy the Primary.
 		return serverIpList.getFirst();
 	}
 
-	public Iterator it (){
+	public synchronized Iterator<String> listOfServers (){
 		return serverIpList.iterator();
 	}
-	public String giveTail(){
+	
+	public String giveLastSecondary(){
 		//LastServer accepts other server.
 		return serverIpList.getLast();
 	}
 	
-	public boolean setPrimaryServer(String ip){
+	public synchronized boolean setPrimaryServer(String ip){
 		serverIpList.remove(ip); //remove or not dont care.
 		this.serverIpList.addFirst(ip); //primary Server head of the list.	
 		return false;
