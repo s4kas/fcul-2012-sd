@@ -8,8 +8,11 @@ import org.sd.common.connection.Connection;
 import org.sd.common.connection.IConnection;
 import org.sd.common.messages.IMessage;
 import org.sd.common.messages.Message;
+import org.sd.data.ActionLog;
 import org.sd.data.Agenda;
+import org.sd.data.ClientList;
 import org.sd.data.Evento;
+import org.sd.data.ServerList;
 import org.sd.protocol.A_RCV_AG_MESSAGE;
 import org.sd.protocol.Protocol;
 import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
@@ -29,7 +32,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 	private boolean stateFlags_Secondary;
 	private MessagePool messagePool = MessagePoolProxy.getInstance();
 	
-	
+	private ServerList currentServerList;
+	private ClientList currentClientList;
+	private ActionLog currentActionLog;
+
 	
 	/*************************************************************
 	 * Validates Payload
@@ -69,10 +75,18 @@ public class DispatcherProcess extends Observable implements Runnable {
 	 * @param message
 	 * @throws myContentException
 	 */
-	public DispatcherProcess (IConnection aConnection, Agenda aAgenda) throws Exception {
+	public DispatcherProcess (IConnection aConnection, 
+								Agenda aAgenda, 
+								ServerList sl,
+								ClientList cl,
+								ActionLog al) throws Exception {
 		
 		this.thisAgenda = aAgenda;
 		this.thisConnection = aConnection;
+		this.currentActionLog = al;
+		this.currentServerList = sl;
+		this.currentClientList = cl;
+		
 		Protocol protocol = thisConnection.getMessage().getHeader();
 		System.out.println(protocol + " - " + protocol);
 		
@@ -109,7 +123,9 @@ public class DispatcherProcess extends Observable implements Runnable {
 				if (thisAgenda.addEvento( (Evento) thisConnection.getMessage().getContent())){
 					reply = "Sucessfuly added, ...so the master says..!";
 					//TODO: ADD TO ALOG
+					
 					//TODO: SEND S_S_RCV_ALOG TO ALL SERVERS.
+					
 
 				} else {
 					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
