@@ -5,19 +5,19 @@ import java.io.Serializable;
 import org.sd.common.messages.Message;
 import org.sd.data.Agenda;
 
-public class S_C_RCV_AAD_MESSAGE extends Message implements Serializable{
+public class S_RCV_RDT_MESSAGE extends Message implements Serializable{
 
 	private static final long serialVersionUID = -86464047223846857L;
-	private String text;
+	private Agenda agenda;
+	private String ip;
 	
-	public S_C_RCV_AAD_MESSAGE(String s) {
-		messageProtocol = Protocol.S_C_RCV_AAD;
-		text = s; 
+	public S_RCV_RDT_MESSAGE(String ip) {
+		messageProtocol = Protocol.S_RCV_RDT;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getContent() {
-		return (T) text;
+		return (T) ip;
 	}
 	
 	@SuppressWarnings("unchecked")
