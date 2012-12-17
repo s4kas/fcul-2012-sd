@@ -33,6 +33,12 @@ public class Agenda implements Serializable , Writable, IAgenda{
 		}
 	}
 	
+	
+	public synchronized ArrayList<Evento> ListEventos (){
+		return agenda;
+	}
+	
+	
 	/**********************************************************************
 	 * Removes eventos from the agenda.
 	 * @param newEvento new evento
