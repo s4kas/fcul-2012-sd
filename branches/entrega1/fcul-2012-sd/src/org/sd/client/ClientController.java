@@ -1,24 +1,25 @@
 package org.sd.client;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import org.sd.client.messages.HandShakeMessage;
 import org.sd.client.ui.ClientUI;
-import org.sd.common.messages.AddEventMessage;
 import org.sd.common.messages.IMessage;
+import org.sd.data.Agenda;
 import org.sd.data.Evento;
+import org.sd.data.ServerList;
+import org.sd.protocol.C_S_REQ_ADD_MESSAGE;
+import org.sd.protocol.C_S_REQ_ALT_MESSAGE;
 
 public class ClientController {
 	
-	//C_RCV_SL - Processa a recepcao da lista de servidores
-	//A_RCV_RDT - Processa a ordem de redirecionamento.
-	//S_C_RCV_AAD - Processa a resposta a um pedido AAD previo.
-	//A_RCV_AG - Processa a recepção de uma AGenda
-	//S_C_RCV_HS - Processa a aceitação de HS dum servidor.
-	
-	private static ClientFacade clientFacade; 
+	private static ClientFacade clientFacade;
+	private static Agenda agenda = new Agenda();
+	private static ServerList serverList = new ServerList();
 	
 	public static void main(String[] args) {
 		//start ui
@@ -32,19 +33,33 @@ public class ClientController {
 	
 	public static void connect() {
 		//start connection to server
-		if (clientFacade == null) {
-			clientFacade = new ClientFacade();
-		}
-		
+		clientFacade = new ClientFacade();
 		clientFacade.initialize(ClientConfigProxy.getConfig());
 		updateStatus();
-	}
-	
-	private void sendHandShake() {
 		
+		if (clientFacade.isConnected) {
+			waiting(5000);
+			sendHandShake();
+		}
 	}
 	
-	private void sendAgendaRequest() {
+	private static boolean sendHandShake() {
+		//not connected
+		if (clientFacade == null) {
+			return false;
+		}
+		
+		//init and send a new message
+		IMessage handShake = new HandShakeMessage();
+		clientFacade.sendMessage(handShake);
+		
+		updateRecentEvents("Client - Handshake sent.");
+		
+		return true;
+
+	}
+	
+	private static void sendAgendaRequest() {
 		
 	}
 	
@@ -57,9 +72,9 @@ public class ClientController {
 	
 	public static void updateStatus() {
 		if (clientFacade == null) {
-			ClientUI.updateStatus(false,false);
+			ClientUI.updateStatus(false);
 		} else {
-			ClientUI.updateStatus(clientFacade.isConnected, clientFacade.isHandShaked);
+			ClientUI.updateStatus(clientFacade.isConnected);
 		}
 	}
 	
@@ -74,28 +89,87 @@ public class ClientController {
 		Evento ev = new Evento(year,month,day,startHour, startMinutes,
 				year,month,day,endHour,endMinutes, 
 				(title + " - " + content),"");
-		AddEventMessage message = new AddEventMessage(ev);
+		C_S_REQ_ADD_MESSAGE message = new C_S_REQ_ADD_MESSAGE(ev);
+		agenda.addEvento(ev);
 		
 		//try to send the message
 		clientFacade.sendMessage(message);
 		
+		updateRecentEvents("Client - Sent Add Event: " + message.getContent().getDescript());
+		
 		return true;
+	}
+	
+	public static void receiveAgenda(Agenda newAgenda) {
+		agenda = new Agenda();
+		agenda.ListEventos().addAll(newAgenda.ListEventos());
 	}
 	
 	public static void deleteEvent(String id) {
 		
 	}
 	
-	public static void receiveMessage(IMessage message) {
-		
+	public static void updateRecentEvents(String message) {
+		ClientUI.updateRecentEvents(message);
 	}
 	
-	public static List getEventsForDayMonthYear(int day, int month, int year) {
-		//System.out.println(day+" "+ month+" "+year);
-		return new ArrayList();
+	public static List<Evento> getEventsForDayMonthYear(int day, int month, int year) {
+		List<Evento> aux = new ArrayList<Evento>();
+
+		for (Evento ev : agenda.ListEventos()) {
+			if (ev.equalsByDayMonthYear(day, month, year)) {
+				aux.add(ev);
+			}
+		}
+		
+		return aux;
 	}
 	
 	public static boolean eventsForDayMonthYear(int day, int month, int year) {
 		return !getEventsForDayMonthYear(day,month,year).isEmpty();
+	}
+	
+	private static void waiting(int mili) {
+		try {
+			Thread.sleep(mili);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void updateHandShakeStatus(boolean status) {
+		if (clientFacade == null) {
+			return;
+		}
+		clientFacade.isHandShaked = status;
+	}
+
+	public static void receiveServerList(List<String> content) {
+		serverList = new ServerList();
+		serverList.listOfServers().addAll(content);
+	}
+
+	public static boolean modifyEvent(int day, int month, int year,
+			int startHour, int startMinute, int endHour, int endMinute,
+			String title, String contentText) {
+		//not connected
+		if (clientFacade == null) {
+			return false;
+		}
+				
+		//create new event message
+		Evento ev = new Evento(year,month,day,startHour, startMinute,
+				year,month,day,endHour,endMinute, 
+				(title + " - " + contentText),"");
+		C_S_REQ_ALT_MESSAGE message = new C_S_REQ_ALT_MESSAGE(ev);
+		agenda.alterEvento(ev);
+				
+		//try to send the message
+		clientFacade.sendMessage(message);
+				
+		updateRecentEvents("Client - Sent Modify Event: " + message.getContent().getDescript());
+				
+		return true;
 	}
 }

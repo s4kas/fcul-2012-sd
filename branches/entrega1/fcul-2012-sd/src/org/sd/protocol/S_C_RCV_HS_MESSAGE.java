@@ -9,7 +9,7 @@ public class S_C_RCV_HS_MESSAGE extends Message implements Serializable {
 	private static final long serialVersionUID = 148194312438073L;
 	
 	public S_C_RCV_HS_MESSAGE() {
-		messageProtocol = Protocol.S_S_RCV_HS;
+		messageProtocol = Protocol.S_C_RCV_HS;
 	}
 	
 	@SuppressWarnings("unchecked")

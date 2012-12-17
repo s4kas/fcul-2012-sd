@@ -10,7 +10,7 @@ public class C_RCV_SL_MESSAGE extends Message implements Serializable {
 	private List<String> serverList;
 	
 	public C_RCV_SL_MESSAGE(List <String> serverList) {
-		messageProtocol = Protocol.S_RCV_SL;
+		messageProtocol = Protocol.C_RCV_SL;
 		this.serverList=serverList;
 	}
 	
