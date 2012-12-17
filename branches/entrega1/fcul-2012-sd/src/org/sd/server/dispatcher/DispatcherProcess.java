@@ -2,6 +2,7 @@ package org.sd.server.dispatcher;
 
 import java.net.Socket;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -18,6 +19,7 @@ import org.sd.protocol.A_RCV_AG_MESSAGE;
 import org.sd.protocol.C_RCV_SL_MESSAGE;
 import org.sd.protocol.Protocol;
 import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
+import org.sd.protocol.S_C_RCV_HS_MESSAGE;
 import org.sd.protocol.S_RCV_RDT_MESSAGE;
 import org.sd.protocol.S_RCV_SL_MESSAGE;
 import org.sd.protocol.S_S_RCV_ALOG_MESSAGE;
@@ -52,11 +54,13 @@ public class DispatcherProcess extends Observable implements Runnable {
 		case C_S_REQ_ADD:
 		case C_S_REQ_ALT:
 		case C_S_REQ_DEL:if (currentConnection.getMessage().getContent() instanceof Evento) isValid=true;break;
-			
+		
+		
+		case S_RCV_SL:if (currentConnection.getMessage().getContent() instanceof List) isValid=true;break;
 		case S_S_RCV_ALOG:break;
 		case S_S_RCV_PROMO:break;
 		case S_S_RCV_HS:break;
-		case S_RCV_SL:break;
+		
 		case S_C_RCV_AAD:break;
 		
 		//no payload required. Ignore payload
@@ -110,6 +114,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 	/*************************************************************
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void run() {
 		String reply;
 		processing=true;
@@ -129,7 +134,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 			//REQUEST ADD EVENTO FROM CLIENT
 			case C_S_REQ_ADD:
 				if (thisAgenda.addEvento( (Evento) currentConnection.getMessage().getContent())){
-					reply = "Sucessfuly added, ...so the master says..!";
+					reply = "Sucessfuly added, ..so says the master..!";
 					//ADD TO ALOG
 					currentActionLog.addMessage(currentConnection.getMessage());
 					//SEND S_S_RCV_ALOG TO ALL SERVERS.
@@ -155,11 +160,9 @@ public class DispatcherProcess extends Observable implements Runnable {
 				break;
 				
 			case C_S_REQ_ALT:
-				
-				if (thisAgenda.alterEvento(currentConnection.getMessage().getContent()))
-				
-				
-					reply = "Sucessfuly added, ...so the master says..!";
+				//ALTER = REMOVE AND ADD SAME DATE&TIME
+				if (thisAgenda.alterEvento((Evento) currentConnection.getMessage().getContent())){
+					reply = "Sucessfuly Altered, ...so says the master..!";
 					//ADD TO ALOG
 					currentActionLog.addMessage(currentConnection.getMessage());
 					//SEND S_S_RCV_ALOG TO ALL SERVERS.
@@ -168,22 +171,22 @@ public class DispatcherProcess extends Observable implements Runnable {
 								currentActionLog.SubSetAfter(currentConnection.getMessage())),
 								currentServerList.listOfServers());
 				} else {
-					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
+					reply = "Couldnt alter, not realy a substitution!";
 				}
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
 				processing=false;
 			break;
-			
+
 			case S_S_REQ_HS:
-				
+				//TODO: BUG IF THERES ONLY ONE PRIMARY SERVER.
 				//m i primary = first of the serverlist?
-				if (currentServerList.givePrimary().equals("localhost")){
+				if (currentServerList.givePrimary().equals(currentServerList.getMyAddress())){
 					//REDIRECT TO LAST OF THE LIST.
 					messagePool.postOutgoingConnection(
 							new Connection(
 									new S_RCV_RDT_MESSAGE(currentServerList.giveLastSecondary()),
 									currentConnection.getSocket()));
-				} else if (currentServerList.giveLastSecondary().equals("localhost")){
+				} else if (currentServerList.giveLastSecondary().equals(currentServerList.getMyAddress())){
 					//SENDS ALOG TO SERVER
 					messagePool.postOutgoingConnection(
 							new Connection(
@@ -210,7 +213,11 @@ public class DispatcherProcess extends Observable implements Runnable {
 			
 			case C_S_REQ_HS:
 				//m i primary = first of the serverlist?
-				if (currentServerList.givePrimary().equals("localhost")){
+				if (currentServerList.givePrimary().equals(currentServerList.getMyAddress())){
+
+					//SEND HANDSHAKE
+					messagePool.postOutgoingConnection(
+							new Connection(new S_C_RCV_HS_MESSAGE(),currentConnection));					
 					//SEND AGENDA TO CLIENT.
 					messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
 					//SENDS SERVER LIST
@@ -218,14 +225,43 @@ public class DispatcherProcess extends Observable implements Runnable {
 							new Connection(
 									new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
 									currentConnection));
+				
 				//TODO: TIAGO PROMOTION!!!
 				}
 			break;
+			
+			case C_S_REQ_DEL:
+				//ALTER = REMOVE AND ADD SAME DATE&TIME
+				if (thisAgenda.removesEvento((Evento) currentConnection.getMessage().getContent())){
+					reply = "Sucessfuly Removed, ...so says the master..!";
+					//ADD TO ALOG
+					currentActionLog.addMessage(currentConnection.getMessage());
+					//SEND S_S_RCV_ALOG TO ALL SERVERS.
+					//send a subset of Alog from this message position on log to the end of the log.  
+						messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
+								currentActionLog.SubSetAfter(currentConnection.getMessage())),
+								currentServerList.listOfServers());
+				} else {
+					reply = "Couldnt delete, cant find this evento! to delete.";
+				}
+				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
+				processing=false;
+			break;
 		
-			case S_S_RCV_HS:break;
+			case S_S_RCV_HS:
+				currentServerList.addLast(currentServerList.getMyAddress());
+				messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
+						currentActionLog.SubSetAfter(currentConnection.getMessage())),
+						currentServerList.listOfServers());
+			break;
 			
-			case C_S_REQ_DEL:break;
+			case S_RCV_SL:
+				currentServerList.overrideList((List<String>)currentConnection.getMessage().getContent());
+				if (currentServerList.)
+				
 			
+			break;
+
 			case S_S_REQ_PROMO:break;
 			
 			case S_S_RCV_ALOG:break;
