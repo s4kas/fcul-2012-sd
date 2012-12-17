@@ -8,8 +8,8 @@ import org.sd.server.ServerAgenda;
 public final class Evento implements Serializable ,Cloneable{
 
 	private static final long serialVersionUID = 5789258183400060095L;
-	private Calendar starts;
-	private Calendar ends;
+	private Calendar starts = Calendar.getInstance();
+	private Calendar ends = Calendar.getInstance();
 	private String descript;
 	private String owner;
 
@@ -51,13 +51,21 @@ public final class Evento implements Serializable ,Cloneable{
 			 newEvento.owner= this.owner;
 
 		} catch (CloneNotSupportedException e) {
-			ServerAgenda.addToInfoConsole("Evento não é clonavel! oops!!!");
+			ServerAgenda.addToInfoConsole("Evento nï¿½o ï¿½ clonavel! oops!!!");
 			e.printStackTrace();
 		}
 		 
 		return newEvento; 
 	}
 	
+	public Calendar getStartCalendar() {
+		return starts;
+	}
+	
+	public Calendar getEndCalendar() {
+		return ends;
+	}
+
 	/****************************************************************************
 	 * Getters
 	 */
@@ -78,7 +86,17 @@ public final class Evento implements Serializable ,Cloneable{
 				this.ends.equals(other.ends);
 	}
 	
-
+	public boolean equalsByDayMonthYear(int day, int month, int year) {
+		int evDay = (this.getStartCalendar()).get(Calendar.DAY_OF_MONTH);
+		int evMonth = (this.getStartCalendar()).get(Calendar.MONTH);
+		int evYear = (this.getStartCalendar()).get(Calendar.YEAR);
+		
+		if (evDay == day && evMonth == month && evYear == year) {
+			return true;
+		}
+		return false;
+	}
+	
 	
 	/****************************************************************************
 	 * Equals 

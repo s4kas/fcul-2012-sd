@@ -39,10 +39,6 @@ public class ConnectionWorker implements Runnable {
 			//try to send the message
 			workingConnection.getOutputStream().writeObject(messageToSend);
 			
-			//FIXME BM
-			System.out.println("Sent: " + messageToSend.getContent());
-			System.out.println("To: " + workingConnection.getSocket().getInetAddress());
-			
 			workingConnection.getOutputStream().flush();
 			
 		} catch (IOException e) {
@@ -59,10 +55,6 @@ public class ConnectionWorker implements Runnable {
 			while (workingConnection.getSocket().isConnected()) {
 				//message received
 				receivedMessage = (IMessage) workingConnection.getInputStream().readObject();
-					
-				//FIXME BM
-				System.out.println("Received: " + receivedMessage.getContent());
-				System.out.println("From: " + workingConnection.getSocket().getInetAddress());
 					
 				//post a new incoming message to the message pool
 				IConnection incomingConnection = new Connection(receivedMessage, workingConnection);

@@ -11,6 +11,7 @@ public class A_RCV_AG_MESSAGE extends Message implements Serializable{
 	private Agenda agenda;
 	
 	public A_RCV_AG_MESSAGE(Agenda a) {
+		this.agenda = a;
 		messageProtocol = Protocol.A_RCV_AG;
 	}
 	

@@ -47,6 +47,9 @@ public class MessagePool extends Dispatchable {
 		for (String out : outList) {
 			try {
 				incomingQueue.add(new Connection(message, new Socket(out,port)));
+				
+				//notify observers
+				notifyConnectionObservers();
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -3,8 +3,6 @@ package org.sd.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
-import org.sd.client.messages.HandShakeMessage;
 import org.sd.common.IAgentFacade;
 import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
@@ -15,8 +13,9 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	
 	private Socket clientSocket;
 	private ClientConfig clientConfig;
-	private IMessage receivedMessage = null;
 	public boolean isConnected = false;
+	public static int handShakeTries = 0;
+	public final static int MAX_HS_TRIES = 5;
 	public boolean isHandShaked = false;
 	private ClientDispatchable clientDispatchable;
 	
@@ -47,6 +46,9 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 				//start remote socket
 				clientSocket = new Socket(server,port);
 				
+				//start new connection
+				connection = new Connection(clientSocket);
+				
 				//set connected
 				this.isConnected = true;
 				
@@ -72,24 +74,11 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		(new Thread() {
 			public void run() {
 				while (isConnected) {
-					//start new connection
-					connection = new Connection(clientSocket);
 					IMessage receivedMessage = receiveMessage();
 					clientDispatchable.postMessage(receivedMessage);
 				}
 			}
 		}).start();
-		
-		/*
-		//init and send a new message
-		IMessage handShake = new HandShakeMessage();
-		sendMessage(handShake);
-		//receive the result
-		IMessage receivedMessage = receiveMessage();
-		if (receivedMessage != null) {
-			isHandShaked = true;
-		}
-		*/
 	}
 	
 	public void sendMessage(final IMessage message) {
@@ -100,7 +89,6 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 				try {
 					//write msg
 					connection.getOutputStream().writeObject(message);
-					//receive msg
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -112,7 +100,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 
 	public IMessage receiveMessage() {
 		try {
-			return receivedMessage = (IMessage) connection.getInputStream().readObject();
+			return (IMessage) connection.getInputStream().readObject();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

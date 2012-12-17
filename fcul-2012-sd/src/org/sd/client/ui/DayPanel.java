@@ -7,7 +7,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -22,6 +24,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.sd.client.ClientController;
+import org.sd.data.Evento;
 
 public class DayPanel extends JPanel implements ActionListener {
 
@@ -29,11 +32,14 @@ public class DayPanel extends JPanel implements ActionListener {
 	private GridBagConstraints c;
 	private Calendar calendar;
 	private JButton addButton, consultButton, eliminateButton,
-		confirmAddEvent, back;
+		confirmAddEvent, back, modify;
 	ButtonGroup radioGroup;
+	List<JRadioButton> radios = new ArrayList<JRadioButton>();
 	JTextField subject;
 	JTextArea content;
 	JComboBox startHours, startMinutes, endHours, endMinutes;
+	JLabel startHoursLabel, startMinutesLabel, endHoursLabel, endMinutesLabel;
+	List<Evento> eventos;
 	
 	public DayPanel(int day, int month, int year) {
 		c = new GridBagConstraints();
@@ -44,6 +50,7 @@ public class DayPanel extends JPanel implements ActionListener {
 		this.calendar.set(Calendar.YEAR, year);
 		this.calendar.set(Calendar.MONTH, month);
 		this.calendar.set(Calendar.DAY_OF_MONTH, day);
+		eventos = ClientController.getEventsForDayMonthYear(day, month, year);
 		
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new GridBagLayout());
@@ -79,8 +86,9 @@ public class DayPanel extends JPanel implements ActionListener {
 		
 		JRadioButton button;
 		radioGroup = new ButtonGroup();
-		for (int i = 0; i < 1; i ++) {
-			button = new JRadioButton("cenas jkasdjkhadshjdashjdsahjkdsahkjdsahkjdsahkjdashkdhkajshkjsadhkjdsakhjsdahkjdsakhjdsakhjakshdjkhajsdkhadskhjdsakjhkjsadkhjdsakhjdsakhj"+i);
+		for (int i = 0; i < eventos.size(); i ++) {
+			String line = eventos.get(i).getStarts() + " - " + eventos.get(i).getDescript();
+			button = new JRadioButton(line);
 			radioGroup.add(button);
 			eventsPanel.add(button,gbc);
 			gbc.gridy++;
@@ -222,45 +230,88 @@ public class DayPanel extends JPanel implements ActionListener {
 			return null;
 		}
 		
-		this.removeAll();
+		int index = 0;
+		for (int i = 0; i < radios.size(); i ++) {
+			if (radios.get(i).isSelected()) {
+				index = i;
+				break;
+			}
+		}
 		
-		//top panel
-		c.anchor = GridBagConstraints.PAGE_START;
-		c.gridy = 0;
-		add(new JLabel("Consultar Evento"),c);
+		int startHour = eventos.get(index).getStartCalendar().get(Calendar.HOUR);
+		int startMinute = eventos.get(index).getStartCalendar().get(Calendar.MINUTE);
+		int endHour = eventos.get(index).getEndCalendar().get(Calendar.HOUR);
+		int endMinute = eventos.get(index).getEndCalendar().get(Calendar.MINUTE);
+		String[] temp = eventos.get(index).getDescript().split("-");
+		String title = temp[0];
+		String contentText = temp[1];
+		
+		this.removeAll();
 		
 		//middle panel
 		c.anchor = GridBagConstraints.CENTER;
 		c.gridy = 1;
+				
 		JPanel consultEventPanel = new JPanel(new GridBagLayout());
-		
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-		gbc.fill = GridBagConstraints.VERTICAL;
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		gbc.gridy = gbc.gridx = 0;
-		
+		gbc.weightx = gbc.weighty = 1.0;
+				
+		JLabel startLabel = new JLabel("Inicio",JLabel.CENTER);
+		gbc.gridy = 0;
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		consultEventPanel.add(startLabel,gbc);
+				
+		JLabel endLabel = new JLabel("Fim",JLabel.CENTER);
+		gbc.gridy = 0;
+		gbc.gridx = 2;
+		gbc.gridwidth = 2;
+		consultEventPanel.add(endLabel,gbc);
+				
+		startHoursLabel = new JLabel(String.valueOf(startHour));
+		gbc.gridy = 1;
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		consultEventPanel.add(startHoursLabel,gbc);
+				
+		startMinutesLabel = new JLabel(String.valueOf(startMinute));
+		gbc.gridx = 2;
+		consultEventPanel.add(startMinutesLabel,gbc);
+				
+		endHoursLabel = new JLabel(String.valueOf(endHour));
+		gbc.gridy = 1;
+		gbc.gridx = 3;
+		gbc.gridwidth = 1;
+		consultEventPanel.add(endHoursLabel,gbc);
+				
+		endMinutesLabel = new JLabel(String.valueOf(endMinute));
+		gbc.gridx = 4;
+		consultEventPanel.add(endMinutesLabel,gbc);
+				
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 1;
 		JLabel subjectLabel = new JLabel("Título: ");
 		consultEventPanel.add(subjectLabel,gbc);
-		JLabel subject = new JLabel("cenas maradas de titulo e tal");
+		subject = new JTextField(22);
+		subject.setText(title);
 		gbc.gridx = 1;
+		gbc.gridwidth = 4;
 		consultEventPanel.add(subject,gbc);
-		
-		gbc.gridy = 1;
+				
 		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 1;
 		JLabel contentLabel = new JLabel("Evento: ");
 		consultEventPanel.add(contentLabel,gbc);
+				
 		gbc.gridx = 1;
-		JTextArea content = new JTextArea("cenas e tal e coisada marada ui uiui uiui" +
-				"klskljdfskjlfdsjlkdfsjlkfdsjlkfdsljkfdsjlkdfsjlkjldfksjlkfdsjldsfjlkdsfjlkjlkdsflkdfs" +
-				"jkldfsljkdsfjkldfsljkdsfljkdfsjkldfsljkdsfljkldjksfljkdsfljkdsfjlksdfjlkfsdjlkljkdsflksdf" +
-				"jkldsfljkdsfjlkdfsljksdfljksdflkjdsfljkdslkjsdfljkdsjlkdsflksdfkljdsf" +
-				"lkjdsfjkldsfljkdsfljksdfljkdsflkjdsflk");
-		content.setPreferredSize(new Dimension(245,240));
+		gbc.gridwidth = 4;
+		content = new JTextArea();
+		content.setText(contentText);
+		content.setPreferredSize(new Dimension(245,250));
 		content.setLineWrap(true);
 		content.setWrapStyleWord(true);
-		content.setEditable(false);
 		consultEventPanel.add(content,gbc);
 		
 		add(consultEventPanel,c);
@@ -270,6 +321,9 @@ public class DayPanel extends JPanel implements ActionListener {
 		c.gridy = 2;
 		
 		JPanel actionsPanel = new JPanel();
+		modify = new JButton("Modificar");
+		modify.addActionListener(this);
+		actionsPanel.add(modify);
 		back = new JButton("Voltar");
 		back.addActionListener(this);
 		actionsPanel.add(back);
@@ -281,27 +335,7 @@ public class DayPanel extends JPanel implements ActionListener {
 	}
 	
 	private void addEvent() {
-		if (this.subject.getText().isEmpty() || this.content.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null,
-				    "Deve preencher todos os campos.",
-				    "Erro adicionar evento",
-				    JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		
-		if (this.subject.getText().length() > 25) {
-			JOptionPane.showMessageDialog(null,
-				    "O titulo deve ter um máximo de 25 caractéres.",
-				    "Erro adicionar evento",
-				    JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		
-		if (this.content.getText().length() > 255) {
-			JOptionPane.showMessageDialog(null,
-				    "O conteúdo do evento deve ter um máximo de 255 caractéres.",
-				    "Erro adicionar evento",
-				    JOptionPane.ERROR_MESSAGE);
+		if (!validateFields()) {
 			return;
 		}
 		
@@ -354,6 +388,66 @@ public class DayPanel extends JPanel implements ActionListener {
 		//1 = nao
 	}
 	
+	private void modifyEvent() {
+		if (!validateFields()) {
+			return;
+		}
+		
+		int startHour = Integer.parseInt(startHoursLabel.getText());
+		int startMinute = Integer.parseInt(startMinutesLabel.getText());
+		int endHour = Integer.parseInt(endHoursLabel.getText());
+		int endMinute = Integer.parseInt(endMinutesLabel.getText());
+		String title = subject.getText();
+		String contentText = content.getText();
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH);
+		int year = calendar.get(Calendar.YEAR);
+		System.out.println(contentText);
+		
+		boolean result = ClientController.modifyEvent(day, month, year, 
+				startHour, startMinute, endHour, endMinute, title, contentText);
+		
+		if (result) {
+			JOptionPane.showMessageDialog(null,
+				    "Alteração de evento enviada com sucesso.",
+				    "Sucesso modificar evento",
+				    JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(null,
+				    "Não foi possível enviar a alteração de evento.",
+				    "Erro modificar evento",
+				    JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	private boolean validateFields() {
+		if (this.subject.getText().isEmpty() || this.content.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null,
+				    "Deve preencher todos os campos.",
+				    "Erro adicionar evento",
+				    JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
+		if (this.subject.getText().length() > 25) {
+			JOptionPane.showMessageDialog(null,
+				    "O titulo deve ter um máximo de 25 caractéres.",
+				    "Erro adicionar evento",
+				    JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
+		if (this.content.getText().length() > 255) {
+			JOptionPane.showMessageDialog(null,
+				    "O conteúdo do evento deve ter um máximo de 255 caractéres.",
+				    "Erro adicionar evento",
+				    JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public void actionPerformed(ActionEvent ev) {
 		JButton button = (JButton) ev.getSource();
 		if (button == this.addButton) {
@@ -366,6 +460,8 @@ public class DayPanel extends JPanel implements ActionListener {
 			constructListEvents();
 		} else if (button == this.confirmAddEvent) {
 			addEvent();
+		} else if (button == this.modify) {
+			modifyEvent();
 		}
 	}
 }

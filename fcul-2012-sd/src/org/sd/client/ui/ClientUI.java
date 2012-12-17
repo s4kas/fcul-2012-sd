@@ -7,6 +7,7 @@ import java.util.Calendar;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -42,7 +43,7 @@ public class ClientUI {
 		}
 	}
 	
-	public static void updateStatus(boolean connected, boolean handShaked) {
+	public static void updateStatus(boolean connected) {
 		JLabel connectionLabel = calendarPanel.getConnectionLabel();
 		JButton connectionButton = calendarPanel.getConnectionButton();
 		if (connected) {
@@ -54,15 +55,12 @@ public class ClientUI {
 			connectionLabel.setText("Desconectado");
 			connectionButton.setText("Ligar");
 		}
-		
-		JLabel handShakeLabel = calendarPanel.getHandShakeLabel();
-		if (handShaked) {
-			handShakeLabel.setForeground(Color.GREEN);
-			handShakeLabel.setText("Com aperto de mão");
-		} else {
-			handShakeLabel.setForeground(Color.RED);
-			handShakeLabel.setText("Sem aperto de mão");
-		}
+	}
+	
+	public static void updateRecentEvents(String message) {
+		JTextArea textArea = calendarPanel.getRecentEventsText();
+		textArea.setText(textArea.getText() + "\n" + message);
+		textArea.validate();
 	}
 	
 	private static void constructCalendarFrame() {

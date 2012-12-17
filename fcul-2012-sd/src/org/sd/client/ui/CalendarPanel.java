@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import org.sd.client.ClientController;
 
@@ -28,7 +29,8 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	private int month, year, yearLowLimit, yearSupLimit;
 	private Icon back, forward;
 	private JButton connectionButton;
-	private JLabel connectionLabel, handShakeLabel;
+	private JLabel connectionLabel;
+	private JTextArea recentEventsText;
 
 	public CalendarPanel(int actualMonth, int actualYear, int yearLowLimit, 
 			int yearSupLimit) {
@@ -52,9 +54,9 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	public JLabel getConnectionLabel() {
 		return connectionLabel;
 	}
-
-	public JLabel getHandShakeLabel() {
-		return handShakeLabel;
+	
+	public JTextArea getRecentEventsText() {
+		return recentEventsText;
 	}
 
 	public CalendarPanel construct() {
@@ -143,11 +145,6 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		gbc.gridy = 1;
 		statusPanel.add(connectionLabel,gbc);
 		
-		handShakeLabel = new JLabel();
-		gbc.anchor = GridBagConstraints.LAST_LINE_START;
-		gbc.gridy = 2;
-		statusPanel.add(handShakeLabel,gbc);
-		
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		connectionButton = new JButton();
@@ -159,11 +156,22 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	}
 	
 	private void addRecentEventsPanel() {
-		JPanel re = new JPanel();
+		JPanel re = new JPanel(new GridBagLayout());
 		c.gridx = 1;
 		c.gridy = 2;
 		//Label top
-		re.add(new JLabel("Actividades Recentes"));
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridy = 0;
+		re.add(new JLabel("Actividades Recentes"),gbc);
+		if (recentEventsText == null) {
+			recentEventsText = new JTextArea("Client - Started");
+			recentEventsText.setLineWrap(true);
+			recentEventsText.setWrapStyleWord(true);
+			recentEventsText.setEnabled(false);
+			recentEventsText.setPreferredSize(new Dimension(225,225));
+		}
+		gbc.gridy = 1;
+		re.add(recentEventsText, gbc);
 		re.setBorder(BorderFactory.createLineBorder(Color.black));
 		re.setPreferredSize(new Dimension(250,250));
 		recentEvents = new JScrollPane(re);
