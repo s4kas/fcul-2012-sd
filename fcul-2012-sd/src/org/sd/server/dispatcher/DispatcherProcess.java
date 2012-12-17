@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -78,8 +79,8 @@ public class DispatcherProcess extends Observable implements Runnable {
 	 */
 	private boolean isProtocolValid (Protocol p, Object content){
 		//CHECK STATE FLAGS
-		boolean isValid=false;
-		
+		boolean isValid=true;
+		/*
 		switch (p){
 		case C_S_REQ_ADD:
 		case C_S_REQ_ALT:
@@ -101,7 +102,8 @@ public class DispatcherProcess extends Observable implements Runnable {
 		case S_REQ_AG:
 		case C_REQ_AG:
 		case A_RCV_RDT: isValid=true; break;
-		}
+		
+		}*/
 		return isValid;
 	}
 	
@@ -359,15 +361,36 @@ public class DispatcherProcess extends Observable implements Runnable {
 				break;
 			
 			case S_S_RCV_ALOG:
-				//NO TIME TO IMPLEMENT
+				LinkedList<IMessage> temp = (LinkedList<IMessage>) currentConnection.getMessage().getContent();
+				Iterator<IMessage> it = temp.iterator();
+				while (it.hasNext()){
+					IMessage m = (IMessage) it.next();
+					switch ((Protocol)m.getHeader()){
+						case C_S_REQ_ADD:
+							thisAgenda.addEvento((Evento)m.getContent());
+							break;
+						case C_S_REQ_ALT:
+							thisAgenda.alterEvento((Evento)m.getContent());
+							break;
+						case C_S_REQ_DEL:
+							thisAgenda.removesEvento((Evento)m.getContent());
+							break;
+					default:
+						break;
+					}
+				}
+				processing=false;
 				break;
 			
 			case S_REQ_AG:
 				//NO TIME TO IMPLEMENT
 				break;
 				
-			case A_RCV_RDT:
-				//NO TIME TO IMPLEMENT
+			case S_RCV_RDT:
+				LinkedList<String> temp1 = new LinkedList<String>();
+				temp1.add((String) currentConnection.getMessage().getContent());
+				messagePool.postMultipleOutgoingConnection(new S_S_REQ_HS_MESSAGE(),temp1);
+				processing=false;
 				break;
 		default:
 			break;
