@@ -15,6 +15,7 @@ import org.sd.data.ClientList;
 import org.sd.data.Evento;
 import org.sd.data.ServerList;
 import org.sd.protocol.A_RCV_AG_MESSAGE;
+import org.sd.protocol.C_RCV_SL_MESSAGE;
 import org.sd.protocol.Protocol;
 import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
 import org.sd.protocol.S_RCV_RDT_MESSAGE;
@@ -154,6 +155,23 @@ public class DispatcherProcess extends Observable implements Runnable {
 				break;
 				
 			case C_S_REQ_ALT:
+				
+				if (thisAgenda.alterEvento(currentConnection.getMessage().getContent()))
+				
+				
+					reply = "Sucessfuly added, ...so the master says..!";
+					//ADD TO ALOG
+					currentActionLog.addMessage(currentConnection.getMessage());
+					//SEND S_S_RCV_ALOG TO ALL SERVERS.
+					//send a subset of Alog from this message position on log to the end of the log.  
+						messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
+								currentActionLog.SubSetAfter(currentConnection.getMessage())),
+								currentServerList.listOfServers());
+				} else {
+					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
+				}
+				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
+				processing=false;
 			break;
 			
 			case S_S_REQ_HS:
@@ -198,24 +216,22 @@ public class DispatcherProcess extends Observable implements Runnable {
 					//SENDS SERVER LIST
 					messagePool.postOutgoingConnection(
 							new Connection(
-									new S_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+									new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
 									currentConnection));
 				//TODO: TIAGO PROMOTION!!!
 				}
 			break;
-			
-			case S_RCV_SL:break;
-			
-			case C_RCV_SL:
-				
-				
-				break;
-			
+		
 			case S_S_RCV_HS:break;
+			
 			case C_S_REQ_DEL:break;
+			
 			case S_S_REQ_PROMO:break;
+			
 			case S_S_RCV_ALOG:break;
+			
 			case S_S_RCV_PROMO:break;
+			
 			case S_REQ_AG:break;
 
 			case S_C_RCV_AAD:break;

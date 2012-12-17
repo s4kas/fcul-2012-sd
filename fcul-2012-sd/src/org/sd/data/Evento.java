@@ -61,12 +61,25 @@ public final class Evento implements Serializable ,Cloneable{
 	/****************************************************************************
 	 * Getters
 	 */
-	public String getStarts (int i){	return starts.getTime().toString();}
-	public String getEnds (int i){		return ends.getTime().toString(); }
-	public String getDescript(){		return descript;}
-	public String getOwner(){			return owner;}
+	public String getStarts ()	{return starts.getTime().toString();}
+	public String getEnds ()	{return ends.getTime().toString(); }
+	public String getDescript()	{return descript;}
+	public String getOwner()	{return owner;}
+	
+	
+	/****************************************************************************
+	 * Equals By date and Time
+	 * @param other Evento.
+	 * @return true if is equal
+	 */
+	public boolean equalsByDateTime (Evento other){
+		
+		return this.starts.equals(other.starts) &&
+				this.ends.equals(other.ends);
+	}
 	
 
+	
 	/****************************************************************************
 	 * Equals 
 	 * @param other Evento.

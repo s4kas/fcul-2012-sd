@@ -79,9 +79,23 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	 * @param existing Evento
 	 * @return true if added.
 	 */
-	public synchronized boolean alterEvento(Evento existingEvento, Evento newEvento) {
-		//return true if remove and added
-		return agenda.remove(existingEvento) && agenda.add(newEvento); 
+	public synchronized boolean alterEvento(Evento newEvento) {
+		Evento temp = null;
+		
+		for (Evento e : agenda) {
+			if (e.equalsByDateTime(newEvento)){
+				temp=e;
+				break;
+			}
+		}
+		
+		if (temp!=null){
+			int index =agenda.indexOf(temp);
+			agenda.remove(index);
+			agenda.add(index, newEvento);	
+		}
+		 
+		return temp!=null;
 	}
 
 	
@@ -107,5 +121,5 @@ public class Agenda implements Serializable , Writable, IAgenda{
 		ServerAgenda.addToInfoConsole("Loading agenda file from disk");
 		this.agenda.addAll(IoOperations.loadAgendaFromFile(new File("agenda.obj")));
 	}
-	
+
 }
