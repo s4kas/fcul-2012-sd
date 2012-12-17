@@ -1,6 +1,7 @@
 package org.sd.protocol;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.LinkedList;
 
 import org.sd.common.messages.IMessage;
@@ -12,6 +13,7 @@ public class S_S_RCV_ALOG_MESSAGE extends Message implements Serializable {
 	private LinkedList<IMessage> actionSet;
 	
 	public S_S_RCV_ALOG_MESSAGE(LinkedList<IMessage> l) {
+		this.timeStamp = new Date().getTime();
 		messageProtocol = Protocol.S_S_RCV_ALOG;
 		actionSet.addAll(l);
 	}
@@ -24,5 +26,9 @@ public class S_S_RCV_ALOG_MESSAGE extends Message implements Serializable {
 	@SuppressWarnings("unchecked")
 	public Protocol getHeader() {
 		return messageProtocol;
+	}
+
+	public long getTimeStamp() {
+		return this.timeStamp;
 	}
 }

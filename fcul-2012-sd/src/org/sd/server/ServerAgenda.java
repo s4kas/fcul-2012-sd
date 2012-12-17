@@ -98,22 +98,6 @@ public class ServerAgenda extends JFrame implements ActionListener{
 
 		//Intitializinf
 		addToInfoConsole("initializing components!");
-		//Inicializa agenda - carrega dados ficheiro
-		//addToInfoConsole("Initializing Agenda!");
-		//runningAgenda = new Agenda();
-		//addToInfoConsole("Agenda Initialized!");
-		//Inicializa controlo - carrega os dados de sistema.
-		//addToInfoConsole("Initializing ServerConfig!");
-		//runningServerConfig = new ServerConfig();
-		//runningServerConfig.loadConfig();
-		//addToInfoConsole("ServerConfig Initialized!");
-		//Inicializa ServerFacede.
-
-		//addToInfoConsole("Initializing DispatcherEngine!");
-		//runningDispatcher = new ServerDispatcher(runningAgenda);
-		//addToInfoConsole("DispatcherEngine Initialized!");
-		//addToInfoConsole("Released to network!");
-		
 		runningServerFacade = new ServerFacade();
 		runningServerFacade.initialize(ServerConfigProxy.getConfig());
 		addToInfoConsole("ServerFacede Initialized!");

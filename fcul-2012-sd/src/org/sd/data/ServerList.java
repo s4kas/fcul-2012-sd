@@ -11,9 +11,10 @@ public class ServerList implements Serializable {
 	private static final long serialVersionUID = -8235350151785732582L;
 	private LinkedList <String> serverIpList = new LinkedList <String>();
 	private String cachedLocalIpAddress; 
+	private long promotingTimeStamp;
 	
 	public ServerList(){
-
+		promotingTimeStamp = 0;
 		try {
 			cachedLocalIpAddress = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
@@ -48,6 +49,11 @@ public class ServerList implements Serializable {
 			return serverIpList.getFirst();
 	}
 	
+
+	public boolean isPromoting(){
+		return promotingTimeStamp>0;
+		
+	}
 	
 	public synchronized List <String> listOfServers(){
 		return serverIpList;
@@ -66,5 +72,13 @@ public class ServerList implements Serializable {
 		serverIpList.remove(ip); //remove or not dont care.
 		this.serverIpList.addFirst(ip); //primary Server head of the list.	
 		return false;
+	}
+
+	public long getTimeStamp(){
+		return promotingTimeStamp;
+	}
+	
+	public void setTimeStamp(long timeStamp) {
+		promotingTimeStamp = timeStamp;
 	}
 }

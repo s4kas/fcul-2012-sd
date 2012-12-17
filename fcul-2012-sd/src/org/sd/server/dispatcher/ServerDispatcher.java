@@ -29,7 +29,7 @@ public class ServerDispatcher implements IDispatcher {
 		
 	public ServerDispatcher (Agenda a){
 		this.agenda=a;
-		currentServerList = new ServerList("localhost");
+		currentServerList = new ServerList();
 		currentActionLog = new ActionLog();
 		currentClientList = new ClientList();
 	}

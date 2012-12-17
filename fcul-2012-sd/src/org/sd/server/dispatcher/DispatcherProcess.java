@@ -1,6 +1,8 @@
 package org.sd.server.dispatcher;
 
-import java.net.Socket;
+import java.io.IOException;
+import java.net.*;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
@@ -20,10 +22,13 @@ import org.sd.protocol.C_RCV_SL_MESSAGE;
 import org.sd.protocol.Protocol;
 import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
 import org.sd.protocol.S_C_RCV_HS_MESSAGE;
+import org.sd.protocol.S_RCV_PROMO_MESSAGE;
 import org.sd.protocol.S_RCV_RDT_MESSAGE;
 import org.sd.protocol.S_RCV_SL_MESSAGE;
 import org.sd.protocol.S_S_RCV_ALOG_MESSAGE;
 import org.sd.protocol.S_S_RCV_HS_MESSAGE;
+import org.sd.protocol.S_S_REQ_HS_MESSAGE;
+import org.sd.protocol.S_S_REQ_PROMO_MESSAGE;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
@@ -40,6 +45,31 @@ public class DispatcherProcess extends Observable implements Runnable {
 	private ClientList currentClientList;
 	private ActionLog currentActionLog;
 
+	
+	
+	/*************************************************************
+	 * Tests Connection
+	 * @param serverIp
+	 * @return
+	 */
+	private boolean testConnection (String serverIp){
+		boolean sucess=false;
+			try {
+				Socket s = new Socket(serverIp, 1500);
+				sucess=true;
+				s.close();
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				sucess=false;
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				sucess=false;
+				e.printStackTrace();
+			}
+			return sucess;
+	}
+	
 	
 	/*************************************************************
 	 * Validates Payload
@@ -93,7 +123,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		this.currentServerList = sl;
 		this.currentClientList = cl;
 		
-		Protocol protocol = currentConnection.getMessage().getHeader();
+		protocol = currentConnection.getMessage().getHeader();
 		System.out.println(protocol + " - " + protocol);
 		
 		//Validate protocol content.
@@ -185,7 +215,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 					messagePool.postOutgoingConnection(
 							new Connection(
 									new S_RCV_RDT_MESSAGE(currentServerList.giveLastSecondary()),
-									currentConnection.getSocket()));
+									currentConnection));
 				} else if (currentServerList.giveLastSecondary().equals(currentServerList.getMyAddress())){
 					//SENDS ALOG TO SERVER
 					messagePool.postOutgoingConnection(
@@ -216,20 +246,42 @@ public class DispatcherProcess extends Observable implements Runnable {
 				if (currentServerList.givePrimary().equals(currentServerList.getMyAddress())){
 
 					//SEND HANDSHAKE
-					messagePool.postOutgoingConnection(
-							new Connection(new S_C_RCV_HS_MESSAGE(),currentConnection));					
+					messagePool.postOutgoingConnection(new Connection(new S_C_RCV_HS_MESSAGE(),currentConnection));
+					//ADD THIS TO CLIENT LIST.
+					currentClientList.addToList(currentConnection.getSocket().getInetAddress().getHostAddress());
 					//SEND AGENDA TO CLIENT.
 					messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
 					//SENDS SERVER LIST
-					messagePool.postOutgoingConnection(
-							new Connection(
-									new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+					messagePool.postOutgoingConnection(new Connection(
+							new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
 									currentConnection));
-				
-				//TODO: TIAGO PROMOTION!!!
+				} else {
+					// IS PRIMARY ONLINE?
+					if (testConnection(currentServerList.givePrimary())){
+						messagePool.postOutgoingConnection(
+								new Connection(
+										new S_RCV_RDT_MESSAGE(currentServerList.givePrimary()),
+										currentConnection));
+					} else {
+						//CONNECTED TO A SECONDARY SERVER
+						if (!currentServerList.giveNextInFront().equals(currentServerList.givePrimary())){
+							messagePool.postOutgoingConnection(
+									new Connection(
+											new S_RCV_RDT_MESSAGE(currentServerList.giveNextInFront()),
+											currentConnection));
+						} else {
+							//TRY TO PROMOTE MYSELF AND ANOUNCE TO OTHER SERVERS.
+							IMessage message= new S_S_REQ_PROMO_MESSAGE();
+							//SET PROMOTING TIMESTAMP
+							currentServerList.setTimeStamp(message.getTimeStamp());
+							messagePool.postMultipleOutgoingConnection(message,
+									currentServerList.listOfServers());
+						}
+					}
 				}
-			break;
-			
+				processing=false;
+				break;
+				
 			case C_S_REQ_DEL:
 				//ALTER = REMOVE AND ADD SAME DATE&TIME
 				if (thisAgenda.removesEvento((Evento) currentConnection.getMessage().getContent())){
@@ -249,30 +301,74 @@ public class DispatcherProcess extends Observable implements Runnable {
 			break;
 		
 			case S_S_RCV_HS:
+				//ADD MY IP ADDRES TO LAST OF THE SERVERLIST
 				currentServerList.addLast(currentServerList.getMyAddress());
-				messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
-						currentActionLog.SubSetAfter(currentConnection.getMessage())),
-						currentServerList.listOfServers());
+				messagePool.postMultipleOutgoingConnection(new S_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+								currentServerList.listOfServers());
 			break;
-			
+
 			case S_RCV_SL:
 				currentServerList.overrideList((List<String>)currentConnection.getMessage().getContent());
-				if (currentServerList.)
-				
-			
+				//IF IM A PRIMARY SERVER
+				if (currentServerList.givePrimary().equals(currentServerList.getMyAddress())){
+					messagePool.postMultipleOutgoingConnection(new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+							currentClientList.listOfClients());
+				}
 			break;
-
-			case S_S_REQ_PROMO:break;
+				
+			case S_S_REQ_PROMO:
+				//	IF IM A PRIMARY SERVER
+				if (currentServerList.givePrimary().equals(currentServerList.getMyAddress())){
+					//Abort other's attempt to promote himself.
+					messagePool.postOutgoingConnection(new Connection(new S_RCV_PROMO_MESSAGE("ABORT"),currentConnection));
+				} else if (currentServerList.isPromoting()){
+					if (currentServerList.getTimeStamp()<currentConnection.getMessage().getTimeStamp()){
+						messagePool.postOutgoingConnection(new Connection(new S_RCV_PROMO_MESSAGE("ABORT"),currentConnection));
+					} else{
+						messagePool.postOutgoingConnection(new Connection(new S_RCV_PROMO_MESSAGE("GOAHED"),currentConnection));
+					}
+				} else {
+					messagePool.postOutgoingConnection(new Connection(new S_RCV_PROMO_MESSAGE("GOAHED"),currentConnection));
+				}
+				processing=false;
+				break;
+				
+			case S_S_RCV_PROMO:
+				//Atempting promotion?
+/*				if (currentServerList.isPromoting()){
+					long result = currentServerList.getTimeStamp()-(new Date().getTime());
+					if (result>10000){
+						
+						if ()
+						//timeout. Stop promotion
+						//TRY TO PROMOTE MYSELF AND ANOUNCE TO OTHER SERVERS.
+						IMessage message= new S_S_REQ_PROMO_MESSAGE();
+						//SET PROMOTING TIMESTAMP
+						currentServerList.setTimeStamp(message.getTimeStamp());
+						messagePool.postMultipleOutgoingConnection(message,
+								currentServerList.listOfServers());
+						processing=false;
+						break;
+					}
+					
+				} else {
+					
+				}*/
+				//NO TIME TO IMPLEMENT
+				processing=false;
+				break;
 			
-			case S_S_RCV_ALOG:break;
+			case S_S_RCV_ALOG:
+				//NO TIME TO IMPLEMENT
+				break;
 			
-			case S_S_RCV_PROMO:break;
-			
-			case S_REQ_AG:break;
-
-			case S_C_RCV_AAD:break;
-			
-			case A_RCV_RDT:break;
+			case S_REQ_AG:
+				//NO TIME TO IMPLEMENT
+				break;
+				
+			case A_RCV_RDT:
+				//NO TIME TO IMPLEMENT
+				break;
 		default:
 			break;
 			}
