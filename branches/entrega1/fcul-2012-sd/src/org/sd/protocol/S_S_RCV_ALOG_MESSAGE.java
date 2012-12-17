@@ -6,13 +6,13 @@ import java.util.LinkedList;
 import org.sd.common.messages.IMessage;
 import org.sd.common.messages.Message;
 
-public class S_S_RCV_TLOG_MESSAGE extends Message implements Serializable {
+public class S_S_RCV_ALOG_MESSAGE extends Message implements Serializable {
 	
 	private static final long serialVersionUID = 1948194365812438073L;
 	private LinkedList<IMessage> actionSet;
 	
-	public S_S_RCV_TLOG_MESSAGE(LinkedList<IMessage> l) {
-		messageProtocol = Protocol.S_S_RCV_TLOG;
+	public S_S_RCV_ALOG_MESSAGE(LinkedList<IMessage> l) {
+		messageProtocol = Protocol.S_S_RCV_ALOG;
 		actionSet.addAll(l);
 	}
 	
