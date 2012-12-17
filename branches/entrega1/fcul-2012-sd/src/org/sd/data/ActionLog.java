@@ -36,9 +36,8 @@ public class ActionLog implements Serializable{
 		LinkedList <IMessage> subsetof = new LinkedList <IMessage>();
 		subsetof.addAll(actionLog);
 		return subsetof;
-		
 	}
-	
+
 	
 	public synchronized boolean addMessage(IMessage e){
 		return actionLog.add(e);
