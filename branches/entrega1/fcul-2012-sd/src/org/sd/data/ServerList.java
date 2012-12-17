@@ -19,6 +19,15 @@ public class ServerList implements Serializable {
 		return serverIpList.getFirst();
 	}
 
+	
+	public String giveNextInFront (){
+		
+		if (serverIpList.indexOf("localhost")>0)
+			return  serverIpList.get(serverIpList.indexOf("localhost")-1);
+		else
+			return serverIpList.getFirst();
+	}
+	
 	public synchronized List <String> listOfServers(){
 		LinkedList <String> temp = new LinkedList<String>();
 		temp.addAll(serverIpList);
