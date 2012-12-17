@@ -17,7 +17,10 @@ import org.sd.data.ServerList;
 import org.sd.protocol.A_RCV_AG_MESSAGE;
 import org.sd.protocol.Protocol;
 import org.sd.protocol.S_C_RCV_AAD_MESSAGE;
-import org.sd.protocol.S_S_RCV_TLOG_MESSAGE;
+import org.sd.protocol.S_RCV_RDT_MESSAGE;
+import org.sd.protocol.S_RCV_SL_MESSAGE;
+import org.sd.protocol.S_S_RCV_ALOG_MESSAGE;
+import org.sd.protocol.S_S_RCV_HS_MESSAGE;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
@@ -29,10 +32,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 	private Agenda thisAgenda;
 	private MessagePool messagePool = MessagePoolProxy.getInstance();
 	private IConnection currentConnection ;
-	
-	private boolean stateFlags_Promoting;
-	private boolean stateFlags_Primary;
-	private boolean stateFlags_Secondary;
 
 	private ServerList currentServerList;
 	private ClientList currentClientList;
@@ -51,9 +50,9 @@ public class DispatcherProcess extends Observable implements Runnable {
 		switch (p){
 		case C_S_REQ_ADD:
 		case C_S_REQ_ALT:
-		case C_S_REQ_DEL:if (thisConnection.getMessage().getContent() instanceof Evento) isValid=true;break;
+		case C_S_REQ_DEL:if (currentConnection.getMessage().getContent() instanceof Evento) isValid=true;break;
 			
-		case S_S_RCV_TLOG:break;
+		case S_S_RCV_ALOG:break;
 		case S_S_RCV_PROMO:break;
 		case S_S_RCV_HS:break;
 		case S_RCV_SL:break;
@@ -63,7 +62,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		case C_S_REQ_HS:
 		case S_S_REQ_PROMO:
 		case S_S_REQ_HS:
-		case S_S_REQ_TLOG:
+		case S_S_REQ_ALOG:
 		case S_REQ_AG:
 		case C_REQ_AG:
 		case A_RCV_RDT: isValid=true; break;
@@ -122,7 +121,8 @@ public class DispatcherProcess extends Observable implements Runnable {
 		switch ( protocol ){
 			//REQUEST FULL AGENDA UPDATE FROM CLIENT
 			case C_REQ_AG:
-				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection.getSocket()));
+				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
+				processing=false;
 			break;
 
 			//REQUEST ADD EVENTO FROM CLIENT
@@ -133,29 +133,93 @@ public class DispatcherProcess extends Observable implements Runnable {
 					currentActionLog.addMessage(currentConnection.getMessage());
 					//SEND S_S_RCV_ALOG TO ALL SERVERS.
 					//send a subset of Alog from this message position on log to the end of the log.  
-						messagePool.postMultipleOutgoingConnection(new S_S_RCV_TLOG_MESSAGE(
+						messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
 								currentActionLog.SubSetAfter(currentConnection.getMessage())),
 								currentServerList.listOfServers());
 				} else {
 					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
 				}
-				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection.getSocket()));
-
+				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
+				processing=false;
 			break;
 			
-			//REQUEST 
-			case S_S_REQ_TLOG:break;
-			case C_S_REQ_ALT:break;
+			//REQUEST_ALOG
+			case S_S_REQ_ALOG:
+				//SEND FULL ALOG BACK TO REQUESTING SERVER.
+				messagePool.postOutgoingConnection(
+						new Connection(
+								new S_S_RCV_ALOG_MESSAGE(currentActionLog.fullList()),
+								currentConnection));
+				processing=false;
+				break;
+				
+			case C_S_REQ_ALT:
+			break;
+			
+			case S_S_REQ_HS:
+				
+				//m i primary = first of the serverlist?
+				if (currentServerList.givePrimary().equals("localhost")){
+					//REDIRECT TO LAST OF THE LIST.
+					messagePool.postOutgoingConnection(
+							new Connection(
+									new S_RCV_RDT_MESSAGE(currentServerList.giveLastSecondary()),
+									currentConnection.getSocket()));
+				} else if (currentServerList.giveLastSecondary().equals("localhost")){
+					//SENDS ALOG TO SERVER
+					messagePool.postOutgoingConnection(
+							new Connection(
+									new S_S_RCV_ALOG_MESSAGE(currentActionLog.fullList()),
+									currentConnection));
+					//SENDS SERVER LIST
+					messagePool.postOutgoingConnection(
+							new Connection(
+									new S_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+									currentConnection));
+					//SENDS HANDSHAKE CONFIRMATION.
+					messagePool.postOutgoingConnection(
+							new Connection(
+									new S_S_RCV_HS_MESSAGE(),
+									currentConnection));
+				} else {
+					messagePool.postOutgoingConnection(
+							new Connection(
+									new S_RCV_RDT_MESSAGE(currentServerList.giveNextInFront()),
+									currentConnection));
+				}
+				processing=false;
+				break;
+			
+			case C_S_REQ_HS:
+				//m i primary = first of the serverlist?
+				if (currentServerList.givePrimary().equals("localhost")){
+					//SEND AGENDA TO CLIENT.
+					messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
+					//SENDS SERVER LIST
+					messagePool.postOutgoingConnection(
+							new Connection(
+									new S_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+									currentConnection));
+				//TODO: TIAGO PROMOTION!!!
+				}
+			break;
+			
+			case S_RCV_SL:break;
+			
+			case C_RCV_SL:
+				
+				
+				break;
+			
+			case S_S_RCV_HS:break;
 			case C_S_REQ_DEL:break;
 			case S_S_REQ_PROMO:break;
-			case S_S_REQ_HS:break;
-			case S_S_RCV_TLOG:break;
+			case S_S_RCV_ALOG:break;
 			case S_S_RCV_PROMO:break;
-			case S_S_RCV_HS:break;
 			case S_REQ_AG:break;
-			case S_RCV_SL:break;
+
 			case S_C_RCV_AAD:break;
-			case C_S_REQ_HS:break;
+			
 			case A_RCV_RDT:break;
 		default:
 			break;
