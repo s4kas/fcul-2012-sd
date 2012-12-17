@@ -3,6 +3,7 @@ package org.sd.data;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ClientList implements Serializable{
 
@@ -18,11 +19,11 @@ public class ClientList implements Serializable{
 		return clientList.remove(ip);
 	}
 		
-	public synchronized Iterator<String> listOfClients (){
-		return clientList.iterator();
+	public synchronized List<String> listOfClients (){
+		return clientList;
 	}
 	
-	public synchronized void addClientToClientList (String ip){
-		clientList.addFirst(ip); //primary Server head of the list. 
+	public synchronized void addToList (String ip){
+		clientList.add(ip); //Unordered clientlist. 
 	}
 }
