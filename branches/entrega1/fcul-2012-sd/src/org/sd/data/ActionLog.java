@@ -3,6 +3,7 @@ package org.sd.data;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.sd.common.messages.IMessage;
 
@@ -26,8 +27,8 @@ public class ActionLog implements Serializable{
 		return subsetof.iterator();
 	}
 	
-	public synchronized LinkedList<IMessage> SubSetAfter (IMessage e){
-		LinkedList <IMessage> subsetof = new LinkedList <IMessage>();
+	public synchronized List<IMessage> SubSetAfter (IMessage e){
+		List <IMessage> subsetof = new LinkedList <IMessage>();
 		subsetof.addAll(actionLog.indexOf(e), actionLog);
 		return subsetof;
 	}
