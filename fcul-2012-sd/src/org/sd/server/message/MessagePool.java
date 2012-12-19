@@ -41,8 +41,8 @@ public class MessagePool extends Dispatchable {
 		return true;
 	}
 	
-	public synchronized void postMultipleOutgoingConnection(IMessage message, List<String> outList) {
-		int port = ServerConfigProxy.getConfig().getServerPort();
+	public synchronized void postToAllServers(IMessage message, List<String> outList) {
+		int port = ServerConfigProxy.getConfig(false).getServerPort();
 		
 		for (String out : outList) {
 			try {

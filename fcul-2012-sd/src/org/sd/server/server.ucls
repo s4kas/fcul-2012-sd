@@ -24,8 +24,8 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="4" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.ServerAgenda" project="fcul-2012-sd" 
-    file="/fcul-2012-sd/src/org/sd/server/ServerAgenda.java" binary="false">    
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.ServerControllerller" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/server/ServerController.java" binary="false">    
     <position height="-1" width="-1" x="386" y="410"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      

@@ -1,12 +1,9 @@
 package org.sd.client;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
-
-import org.sd.client.messages.HandShakeMessage;
 import org.sd.client.ui.ClientUI;
 import org.sd.common.messages.IMessage;
 import org.sd.data.Agenda;
@@ -14,9 +11,10 @@ import org.sd.data.Evento;
 import org.sd.data.ServerList;
 import org.sd.protocol.C_S_REQ_ADD_MESSAGE;
 import org.sd.protocol.C_S_REQ_ALT_MESSAGE;
+import org.sd.protocol.C_S_REQ_HS_MESSAGE;
 
 public class ClientController {
-	
+
 	private static ClientFacade clientFacade;
 	private static Agenda agenda = new Agenda();
 	private static ServerList serverList = new ServerList();
@@ -31,15 +29,25 @@ public class ClientController {
 	    });
 	}
 	
-	public static void connect() {
+	public static void start() {
+		if (clientFacade == null) {
+			clientFacade = new ClientFacade();
+			clientFacade.initialize(ClientConfigProxy.getConfig(true));
+		}
 		//start connection to server
-		clientFacade = new ClientFacade();
-		clientFacade.initialize(ClientConfigProxy.getConfig());
+		updateRecentEvents("Client - Trying to connect...");
+		clientFacade.start();
 		updateStatus();
 		
-		if (clientFacade.isConnected) {
+		
+		if (ClientFacade.isConnected) {
+			updateRecentEvents("Client - Connected!");
 			waiting(5000);
 			sendHandShake();
+		} else {
+			updateStatus();
+			updateRecentEvents("Client - Can't connect!");
+			updateRecentEvents("Client - Will reconnect in "+ClientFacade.RECONNECT_SECONDS+" seg...");
 		}
 	}
 	
@@ -50,7 +58,7 @@ public class ClientController {
 		}
 		
 		//init and send a new message
-		IMessage handShake = new HandShakeMessage();
+		IMessage handShake = new C_S_REQ_HS_MESSAGE();
 		clientFacade.sendMessage(handShake);
 		
 		updateRecentEvents("Client - Handshake sent.");
@@ -63,18 +71,19 @@ public class ClientController {
 		
 	}
 	
-	public static void disconnect() {
+	public static void stop() {
 		if (clientFacade != null) {
 			clientFacade.terminate();
 		}
+		updateRecentEvents("Client - Disconnected!");
 		updateStatus();
 	}
 	
 	public static void updateStatus() {
 		if (clientFacade == null) {
-			ClientUI.updateStatus(false);
+			ClientUI.updateStatus(false, false);
 		} else {
-			ClientUI.updateStatus(clientFacade.isConnected);
+			ClientUI.updateStatus(ClientFacade.isConnected, ClientFacade.isReconnecting);
 		}
 	}
 	
@@ -146,8 +155,14 @@ public class ClientController {
 	}
 
 	public static void receiveServerList(List<String> content) {
+		//save locally
 		serverList = new ServerList();
 		serverList.listOfServers().addAll(content);
+		
+		//save in properties
+		ClientConfig cf = (ClientConfig) ClientConfigProxy.getConfig(false);
+		cf.setServerList(content);
+		cf.saveConfig();
 	}
 
 	public static boolean modifyEvent(int day, int month, int year,

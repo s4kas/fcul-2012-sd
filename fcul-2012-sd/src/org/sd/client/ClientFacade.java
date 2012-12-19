@@ -3,6 +3,9 @@ package org.sd.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.sd.common.IAgentFacade;
 import org.sd.common.ICommunicator;
 import org.sd.common.IConfig;
@@ -13,11 +16,14 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	
 	private Socket clientSocket;
 	private ClientConfig clientConfig;
-	public boolean isConnected = false;
+	public static boolean isConnected = false;
 	public static int handShakeTries = 0;
 	public final static int MAX_HS_TRIES = 5;
+	public final static int RECONNECT_SECONDS = 10;
 	public boolean isHandShaked = false;
 	private ClientDispatchable clientDispatchable;
+	private static Timer timer;
+	public static boolean isReconnecting = false;
 	
 	private Connection connection;
 
@@ -33,41 +39,42 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		
 		//get the client config
 		clientConfig = (ClientConfig) clientConfiguration;
-		
+	}
+	
+	public void start() {
 		String[] servers = clientConfig.getClientAddress();
-		int[] ports = clientConfig.getClientPort();
+		int port = clientConfig.getClientPort();
 		int tries = 0;
-		
+				
 		while (!isConnected && tries < servers.length) {
 			String server = servers[tries];
-			int port = ports[tries];
-		
+				
 			try {
 				//start remote socket
 				clientSocket = new Socket(server,port);
-				
+						
 				//start new connection
 				connection = new Connection(clientSocket);
-				
+						
 				//set connected
-				this.isConnected = true;
-				
+				isConnected = true;
+				isReconnecting = false;
+						
 			} catch (UnknownHostException e) {
 				//set disconnected
-				this.isConnected = false;
-				e.printStackTrace();
+				isConnected = false;
 			} catch (IOException e) {
 				//set disconnected
-				this.isConnected = false;
-				e.printStackTrace();
+				isConnected = false;
 			}
-			
+					
 			tries++;
 		}
-		
+				
 		//nao consegui ligar
 		if (!isConnected) {
 			terminate();
+			reconnect();
 			return;
 		}
 			
@@ -90,8 +97,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 					//write msg
 					connection.getOutputStream().writeObject(message);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//falhou o envio da msg
 				}	
 			}
 					
@@ -102,11 +108,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		try {
 			return (IMessage) connection.getInputStream().readObject();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return null;
 	}
@@ -117,13 +119,24 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	    	//close the streams
 	    	clientSocket.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	    
 	    //stop listening
 	    isConnected = false;
 	    isHandShaked = false;
 	}
+	
+	public void reconnect() {
+		isReconnecting = true;
+		timer = new Timer();
+		timer.schedule(new ReconnectTask(), RECONNECT_SECONDS*1000);
+	}
+	
+	class ReconnectTask extends TimerTask {
+
+        public void run() {
+        	ClientController.start();
+        }
+    }
 
 }

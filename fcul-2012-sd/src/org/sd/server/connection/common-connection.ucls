@@ -32,8 +32,8 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <interface id="5" corner="BOTTOM_RIGHT" language="java" name="org.sd.server.connection.IConnection" 
-    project="fcul-2012-sd" file="/fcul-2012-sd/src/org/sd/server/connection/IConnection.java" binary="false">    
+  <interface id="5" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.connection.IConnection" 
+    project="fcul-2012-sd" file="/fcul-2012-sd/src/org/sd/common/connection/IConnection.java" binary="false">    
     <position height="-1" width="-1" x="172" y="-88"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
