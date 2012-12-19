@@ -6,18 +6,12 @@ public class ClientConfigProxy {
 	
 	private static ClientConfig clientConfig;
 	
-	public static synchronized IConfig getConfig() {
-		if (clientConfig == null) {
+	public static IConfig getConfig(boolean loadFromFile) {
+		if (clientConfig == null || loadFromFile) {
 			//initialize new clientConfig
 			clientConfig = new ClientConfig();
 			clientConfig.loadConfig();
 		}
 		return clientConfig;
 	}
-
-	public static void saveConfig(ClientConfig config) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

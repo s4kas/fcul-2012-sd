@@ -43,7 +43,7 @@ public class ClientUI {
 		}
 	}
 	
-	public static void updateStatus(boolean connected) {
+	public static void updateStatus(boolean connected, boolean reconnecting) {
 		JLabel connectionLabel = calendarPanel.getConnectionLabel();
 		JButton connectionButton = calendarPanel.getConnectionButton();
 		if (connected) {
@@ -54,6 +54,12 @@ public class ClientUI {
 			connectionLabel.setForeground(Color.RED);
 			connectionLabel.setText("Desconectado");
 			connectionButton.setText("Ligar");
+		}
+		
+		if (reconnecting) {
+			connectionButton.setEnabled(false);
+		} else {
+			connectionButton.setEnabled(true);
 		}
 	}
 	

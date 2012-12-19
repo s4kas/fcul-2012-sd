@@ -8,9 +8,6 @@ public class ServerConfig implements IConfig {
 	private int connectionTimeout;
 	private int nThreads;
 	
-	
-	
-	
 	public boolean loadConfig() {
 		//FIXME BM implement loadProperties
 		

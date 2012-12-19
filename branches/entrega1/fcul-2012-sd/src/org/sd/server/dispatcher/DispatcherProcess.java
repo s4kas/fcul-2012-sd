@@ -95,7 +95,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		case S_C_RCV_AAD:break;
 		
 		//no payload required. Ignore payload
-		case C_S_REQ_HS:
+		case C_S_REQ_HS_MESSAGE:
 		case S_S_REQ_PROMO:
 		case S_S_REQ_HS:
 		case S_S_REQ_ALOG:
@@ -152,9 +152,9 @@ public class DispatcherProcess extends Observable implements Runnable {
 		processing=true;
 		
 		//INVALID MESSAGE CONTENT EXITS!!
-		if (!auth) {
-			processing=false;
-		}
+		//if (!auth) {
+		//	processing=false;
+		//}
 		
 		switch ( protocol ){
 			//REQUEST FULL AGENDA UPDATE FROM CLIENT
@@ -171,7 +171,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 					currentActionLog.addMessage(currentConnection.getMessage());
 					//SEND S_S_RCV_ALOG TO ALL SERVERS.
 					//send a subset of Alog from this message position on log to the end of the log.  
-						messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
+						messagePool.postToAllServers(new S_S_RCV_ALOG_MESSAGE(
 								currentActionLog.SubSetAfter(currentConnection.getMessage())),
 								currentServerList.listOfServers());
 				} else {
@@ -199,7 +199,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 					currentActionLog.addMessage(currentConnection.getMessage());
 					//SEND S_S_RCV_ALOG TO ALL SERVERS.
 					//send a subset of Alog from this message position on log to the end of the log.  
-						messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
+						messagePool.postToAllServers(new S_S_RCV_ALOG_MESSAGE(
 								currentActionLog.SubSetAfter(currentConnection.getMessage())),
 								currentServerList.listOfServers());
 				} else {
@@ -276,7 +276,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 							IMessage message= new S_S_REQ_PROMO_MESSAGE();
 							//SET PROMOTING TIMESTAMP
 							currentServerList.setTimeStamp(message.getTimeStamp());
-							messagePool.postMultipleOutgoingConnection(message,
+							messagePool.postToAllServers(message,
 									currentServerList.listOfServers());
 						}
 					}
@@ -292,7 +292,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 					currentActionLog.addMessage(currentConnection.getMessage());
 					//SEND S_S_RCV_ALOG TO ALL SERVERS.
 					//send a subset of Alog from this message position on log to the end of the log.  
-						messagePool.postMultipleOutgoingConnection(new S_S_RCV_ALOG_MESSAGE(
+						messagePool.postToAllServers(new S_S_RCV_ALOG_MESSAGE(
 								currentActionLog.SubSetAfter(currentConnection.getMessage())),
 								currentServerList.listOfServers());
 				} else {
@@ -305,7 +305,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 			case S_S_RCV_HS:
 				//ADD MY IP ADDRES TO LAST OF THE SERVERLIST
 				currentServerList.addLast(currentServerList.getMyAddress());
-				messagePool.postMultipleOutgoingConnection(new S_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+				messagePool.postToAllServers(new S_RCV_SL_MESSAGE(currentServerList.listOfServers()),
 								currentServerList.listOfServers());
 			break;
 
@@ -313,7 +313,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 				currentServerList.overrideList((List<String>)currentConnection.getMessage().getContent());
 				//IF IM A PRIMARY SERVER
 				if (currentServerList.givePrimary().equals(currentServerList.getMyAddress())){
-					messagePool.postMultipleOutgoingConnection(new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
+					messagePool.postToAllServers(new C_RCV_SL_MESSAGE(currentServerList.listOfServers()),
 							currentClientList.listOfClients());
 				}
 			break;
@@ -389,7 +389,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 			case S_RCV_RDT:
 				LinkedList<String> temp1 = new LinkedList<String>();
 				temp1.add((String) currentConnection.getMessage().getContent());
-				messagePool.postMultipleOutgoingConnection(new S_S_REQ_HS_MESSAGE(),temp1);
+				messagePool.postToAllServers(new S_S_REQ_HS_MESSAGE(),temp1);
 				processing=false;
 				break;
 		default:

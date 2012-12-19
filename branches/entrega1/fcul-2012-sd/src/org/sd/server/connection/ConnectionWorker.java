@@ -42,8 +42,7 @@ public class ConnectionWorker implements Runnable {
 			workingConnection.getOutputStream().flush();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//problems reading message
 		}
 	}
 
@@ -62,11 +61,9 @@ public class ConnectionWorker implements Runnable {
 				messagePool.postIncomingConnection(incomingConnection);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//client disconnected
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//problems reading message
 		}
 	}
 }

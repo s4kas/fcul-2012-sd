@@ -168,14 +168,14 @@ public class CalendarPanel extends JPanel implements ActionListener {
 			recentEventsText.setLineWrap(true);
 			recentEventsText.setWrapStyleWord(true);
 			recentEventsText.setEnabled(false);
-			recentEventsText.setPreferredSize(new Dimension(225,225));
 		}
 		gbc.gridy = 1;
-		re.add(recentEventsText, gbc);
+		recentEvents = new JScrollPane(recentEventsText);
+		recentEvents.setPreferredSize(new Dimension(225,225));
+		re.add(recentEvents, gbc);
 		re.setBorder(BorderFactory.createLineBorder(Color.black));
 		re.setPreferredSize(new Dimension(250,250));
-		recentEvents = new JScrollPane(re);
-		add(recentEvents, c);
+		add(re, c);
 	}
 	
 	private JButton getForwardButton() {
@@ -200,9 +200,9 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		//efetuou ligacao/desligou
 		if (jb == this.connectionButton) {
 			if ("Ligar".equals(jb.getText())) {
-				ClientController.connect();
+				ClientController.start();
 			} else {
-				ClientController.disconnect();
+				ClientController.stop();
 			}
 		}
 		

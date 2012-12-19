@@ -1,46 +1,62 @@
 package org.sd.client;
 
+import java.util.List;
+import java.util.Properties;
+
 import org.sd.common.IConfig;
 import org.sd.common.properties.PropertiesManager;
 
 public class ClientConfig implements IConfig {
 	
-	private String[] clientAddress;
-	private int[] clientPort;
-	private int connectionTimeout;
+	private Properties clientProperties;
+	private final static String CLIENT_ADDRESS = "clientAddress";
+	private final static String CLIENT_PORT = "clientPort";
+	private final static String CONNECTION_TIMEOUT = "connectionTimeout";
 	
 	public boolean loadConfig() {
-		try {
-			clientAddress = PropertiesManager.getClientProps(false).getProperty("clientAddress").split(","); 
-			String[] ports = PropertiesManager.getClientProps(false).getProperty("clientPort").split(",");
-			clientPort = new int[ports.length];
-			for (int i = 0 ; i < ports.length; i ++) {
-				clientPort[i] = Integer.parseInt(ports[i]);
-			}
-			connectionTimeout = Integer.parseInt(PropertiesManager.getClientProps(false).getProperty("connectionTimeout"));
-		} catch (Exception e) {
-			//TODO BM do something
-			return false;
+		if (clientProperties == null) {
+			clientProperties = PropertiesManager.getClientProps();
 		}
 		//initialization went smoothly
 		return true;
 	}
-
-	public String[] getClientAddress() {
-		return clientAddress;
+	
+	public void setServerList(List<String> servers) {
+		if (clientProperties != null) {
+			StringBuffer out = new StringBuffer(); 
+			for (String server : servers) {
+				out.append(server).append(",");
+			}
+			if (out.length() > 0) {
+				out.replace(out.length()-1, out.length(), "");
+			}
+			clientProperties.setProperty(CLIENT_ADDRESS, out.toString());
+		}
 	}
 
-	public int[] getClientPort() {
-		return clientPort;
+	public String[] getClientAddress() {
+		if (clientProperties != null) {
+			return String.valueOf(clientProperties.get(CLIENT_ADDRESS)).split(",");
+		}
+		return null;
+	}
+
+	public int getClientPort() {
+		if (clientProperties != null) {
+			return Integer.parseInt(String.valueOf(clientProperties.get(CLIENT_PORT)));
+		}
+		return -1;
 	}
 	
 	public int getConnectionTimeout() {
-		return connectionTimeout;
+		if (clientProperties != null) {
+			return Integer.parseInt(String.valueOf(clientProperties.get(CONNECTION_TIMEOUT)));
+		}
+		return -1;
 	}
 
 	public boolean saveConfig() {
-		// TODO Auto-generated method stub
-		return false;
+		return PropertiesManager.saveClientProps(clientProperties);
 	}
 
 }

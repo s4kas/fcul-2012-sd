@@ -43,15 +43,16 @@ public class ServerFacade implements IAgentFacade {
 		//start the MessagePool
 		messagePool = MessagePoolProxy.getInstance();
 		messagePool.addDispatchers(new ServerDispatcher(new Agenda()), new ConnectionDispatcher());
-				
+	}
+	
+	public void start() {
 		(new Thread() {
 			public void run() {
 				//start the server socket
 				try {
 					serverSocket = new ServerSocket(serverConfig.getServerPort());
+					isListening = true;
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
 					terminate();
 				}
 				
@@ -64,8 +65,6 @@ public class ServerFacade implements IAgentFacade {
 						Connection connection = new Connection(clientSocket);
 						connectionPool.execute(new ConnectionWorker(connection, WorkType.RECEIVE));
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 						terminate();
 					}
 				}	
@@ -77,17 +76,13 @@ public class ServerFacade implements IAgentFacade {
 		//close the client socket
 		try {
 			clientSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
 		}
 		
 		//close the server socket
 		try {
 			serverSocket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		//server stops listening for connections

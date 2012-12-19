@@ -30,7 +30,6 @@ public class DayPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private GridBagConstraints c;
-	private Calendar calendar;
 	private JButton addButton, consultButton, eliminateButton,
 		confirmAddEvent, back, modify;
 	ButtonGroup radioGroup;
@@ -40,17 +39,16 @@ public class DayPanel extends JPanel implements ActionListener {
 	JComboBox startHours, startMinutes, endHours, endMinutes;
 	JLabel startHoursLabel, startMinutesLabel, endHoursLabel, endMinutesLabel;
 	List<Evento> eventos;
+	int day, month, year;
 	
 	public DayPanel(int day, int month, int year) {
 		c = new GridBagConstraints();
 		c.insets = new Insets(5,5,5,5);
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		this.calendar = Calendar.getInstance();
-		this.calendar.set(Calendar.YEAR, year);
-		this.calendar.set(Calendar.MONTH, month);
-		this.calendar.set(Calendar.DAY_OF_MONTH, day);
-		eventos = ClientController.getEventsForDayMonthYear(day, month, year);
+		this.day = day;
+		this.month = month;
+		this.year = year;
 		
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new GridBagLayout());
@@ -72,6 +70,7 @@ public class DayPanel extends JPanel implements ActionListener {
 		c.anchor = GridBagConstraints.PAGE_START;
 		c.gridy = 0;
 		add(new JLabel("Eventos"),c);
+		eventos = ClientController.getEventsForDayMonthYear(day, month, year);
 		
 		c.anchor = GridBagConstraints.CENTER;
 		c.gridy = 1;
@@ -87,7 +86,8 @@ public class DayPanel extends JPanel implements ActionListener {
 		JRadioButton button;
 		radioGroup = new ButtonGroup();
 		for (int i = 0; i < eventos.size(); i ++) {
-			String line = eventos.get(i).getStarts() + " - " + eventos.get(i).getDescript();
+			String line = eventos.get(i).getStartsEndsHourMinute() 
+					+ " - " + eventos.get(i).getDescript();
 			button = new JRadioButton(line);
 			radioGroup.add(button);
 			eventsPanel.add(button,gbc);
@@ -222,20 +222,20 @@ public class DayPanel extends JPanel implements ActionListener {
 	}
 	
 	private DayPanel constructConsultEvent() {
-		if (radioGroup.getSelection() == null) {
-			JOptionPane.showMessageDialog(null,
-				    "Deve seleccionar um evento.",
-				    "Erro consultar evento",
-				    JOptionPane.ERROR_MESSAGE);
-			return null;
-		}
-		
-		int index = 0;
+		int index = -1;
 		for (int i = 0; i < radios.size(); i ++) {
 			if (radios.get(i).isSelected()) {
 				index = i;
 				break;
 			}
+		}
+		
+		if (index == -1) {
+			JOptionPane.showMessageDialog(null,
+				    "Deve seleccionar um evento.",
+				    "Erro consultar evento",
+				    JOptionPane.ERROR_MESSAGE);
+			return null;
 		}
 		
 		int startHour = eventos.get(index).getStartCalendar().get(Calendar.HOUR);
@@ -345,9 +345,6 @@ public class DayPanel extends JPanel implements ActionListener {
 		int endMinute = Integer.parseInt(endMinutes.getSelectedItem().toString());
 		String title = subject.getText();
 		String contentText = content.getText();
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int month = calendar.get(Calendar.MONTH);
-		int year = calendar.get(Calendar.YEAR);
 		
 		boolean result = ClientController.addEvent(day, month, year, 
 				startHour, startMinute, endHour, endMinute, title, contentText);
@@ -363,6 +360,8 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro adicionar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
+		
+		constructListEvents();
 	}
 	
 	private void removeEvent() {
@@ -386,6 +385,8 @@ public class DayPanel extends JPanel implements ActionListener {
 		System.out.println(result);
 		//0 = sim
 		//1 = nao
+		
+		constructListEvents();
 	}
 	
 	private void modifyEvent() {
@@ -399,10 +400,6 @@ public class DayPanel extends JPanel implements ActionListener {
 		int endMinute = Integer.parseInt(endMinutesLabel.getText());
 		String title = subject.getText();
 		String contentText = content.getText();
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int month = calendar.get(Calendar.MONTH);
-		int year = calendar.get(Calendar.YEAR);
-		System.out.println(contentText);
 		
 		boolean result = ClientController.modifyEvent(day, month, year, 
 				startHour, startMinute, endHour, endMinute, title, contentText);
@@ -418,6 +415,8 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro modificar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
+		
+		constructListEvents();
 	}
 	
 	private boolean validateFields() {
