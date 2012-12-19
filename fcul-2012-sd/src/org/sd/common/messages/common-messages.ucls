@@ -32,8 +32,8 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="5" corner="BOTTOM_RIGHT" language="java" name="org.sd.common.messages.AddEventMessage" 
-    project="fcul-2012-sd" file="/fcul-2012-sd/src/org/sd/common/messages/AddEventMessage.java" binary="false">    
+  <class id="5" corner="BOTTOM_RIGHT" language="java" name="org.sd.protocol.C_S_REQ_ADD_MESSAGE" project="fcul-2012-sd" 
+    file="/fcul-2012-sd/src/org/sd/protocol/C_S_REQ_ADD_MESSAGE.java" binary="false">    
     <position height="-1" width="-1" x="100" y="248"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      

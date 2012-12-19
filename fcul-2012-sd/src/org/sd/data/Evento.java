@@ -3,7 +3,7 @@ package org.sd.data;
 import java.io.Serializable;
 import java.util.Calendar;
 
-import org.sd.server.ServerAgenda;
+import org.sd.server.ServerController;
 
 public final class Evento implements Serializable ,Cloneable{
 
@@ -51,7 +51,7 @@ public final class Evento implements Serializable ,Cloneable{
 			 newEvento.owner= this.owner;
 
 		} catch (CloneNotSupportedException e) {
-			ServerAgenda.addToInfoConsole("Evento n�o � clonavel! oops!!!");
+			ServerController.addToInfoConsole("Evento n�o � clonavel! oops!!!");
 			e.printStackTrace();
 		}
 		 
@@ -70,6 +70,14 @@ public final class Evento implements Serializable ,Cloneable{
 	 * Getters
 	 */
 	public String getStarts ()	{return starts.getTime().toString();}
+	public String getStartsEndsHourMinute () {
+		StringBuffer sb = new StringBuffer("De ");
+		sb.append(starts.get(Calendar.HOUR)).append(":")
+			.append(starts.get(Calendar.MINUTE)).append(" a ")
+			.append(ends.get(Calendar.HOUR)).append(":")
+			.append(ends.get(Calendar.MINUTE));
+		return sb.toString();
+	}
 	public String getEnds ()	{return ends.getTime().toString(); }
 	public String getDescript()	{return descript;}
 	public String getOwner()	{return owner;}

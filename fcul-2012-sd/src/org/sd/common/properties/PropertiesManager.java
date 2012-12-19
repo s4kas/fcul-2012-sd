@@ -2,21 +2,33 @@ package org.sd.common.properties;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Properties;
 
 public class PropertiesManager {
 	
-	private static Properties clientConfig;
 	private static final String CLIENT_CONFIG_FILENAME = "client_config.properties";
+	private static final String SERVER_CONFIG_FILENAME = "server_config.properties";
 	
-	public static Properties getClientProps(boolean loadFromFile) {
-		if (clientConfig == null || loadFromFile) {
-			clientConfig = loadProps(CLIENT_CONFIG_FILENAME);
-		}
-		return clientConfig;
+	public static Properties getClientProps() {
+		return loadProps(CLIENT_CONFIG_FILENAME);
 	}
 	
+	public static boolean saveClientProps(Properties props) {
+		return saveProps(props, CLIENT_CONFIG_FILENAME);
+	}
+	
+	public static Properties getServerProps() {
+		return loadProps(SERVER_CONFIG_FILENAME);
+	}
+	
+	public static boolean saveServerProps(Properties props) {
+		return saveProps(props, SERVER_CONFIG_FILENAME);
+	}
+	
+	@SuppressWarnings("resource")
 	private static Properties loadProps(String filename) {
 		Properties props = new Properties();
 	    InputStream is = null;
@@ -41,5 +53,18 @@ public class PropertiesManager {
 	    catch ( Exception e ) { }
 	    
 	    return props;
+	}
+	
+	private static boolean saveProps(Properties props, String filename) {
+		try {
+	        File f = new File(filename);
+	        OutputStream out = new FileOutputStream( f );
+	        props.store(out, null);
+	        out.close();
+	        return true;
+	    }
+	    catch (Exception e ) {
+	        return false;
+	    }
 	}
 }

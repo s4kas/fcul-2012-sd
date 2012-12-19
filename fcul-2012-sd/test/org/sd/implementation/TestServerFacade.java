@@ -13,7 +13,7 @@ public class TestServerFacade {
 		
 		//init server facade
 		ServerFacade serverFacade = new ServerFacade();
-		serverFacade.initialize(ServerConfigProxy.getConfig());
+		serverFacade.initialize(ServerConfigProxy.getConfig(true));
 		
 	}
 

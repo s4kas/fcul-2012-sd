@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import org.sd.io.IoOperations;
 import org.sd.io.Writable;
-import org.sd.server.ServerAgenda;
+import org.sd.server.ServerController;
 
 
 public class Agenda implements Serializable , Writable, IAgenda{
@@ -29,7 +29,7 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	 */
 	public void agendaDump (){
 		for (Evento e: agenda){
-			ServerAgenda.addToInfoConsole(e.toString());
+			ServerController.addToInfoConsole(e.toString());
 		}
 	}
 	
@@ -105,10 +105,8 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	public void save() {
 		
 		try{
-			ServerAgenda.addToInfoConsole("Saving agenda file on disk");
-			IoOperations.saveAgendaToFile(agenda, new File("agenda.obj"));	
+			IoOperations.saveAgendaToFile(agenda, new File("agenda.obj"));
 		} catch (IOException io){
-			ServerAgenda.addToInfoConsole("IO OOPS! AGENDA NOT SAVED!");
 		}
 	}
 
@@ -118,7 +116,6 @@ public class Agenda implements Serializable , Writable, IAgenda{
 	 */
 
 	public void load() {
-		ServerAgenda.addToInfoConsole("Loading agenda file from disk");
 		this.agenda.addAll(IoOperations.loadAgendaFromFile(new File("agenda.obj")));
 	}
 
