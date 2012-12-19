@@ -12,8 +12,8 @@ public class TestClientFacade {
 	public static void main(String[] args) {
 		//init client facade
 		ClientFacade clientFacade = new ClientFacade();
-		clientFacade.initialize(ClientConfigProxy.getConfig());
-		
+		clientFacade.initialize(ClientConfigProxy.getConfig(true));
+		clientFacade.start();
 		
 	}
 }
