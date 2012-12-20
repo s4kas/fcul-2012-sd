@@ -16,6 +16,7 @@ public class ServerInfo implements Serializable {
 	
 	public ServerInfo(){
 		promotingTimeStamp = 0;
+		quorum=0;
 		try {
 			cachedLocalIpAddress = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
@@ -92,6 +93,10 @@ public class ServerInfo implements Serializable {
 	
 	public void addOkToQuorum(){
 		quorum--;
+	}
+
+	public void clearQuorum() {
+		quorum=0;
 	}
 	
 }

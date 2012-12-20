@@ -39,7 +39,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 	
 	private final int DEFINED_TIMEOUT = 15; //in seconds
 	private boolean processing;
-	private boolean auth= false;
+	private boolean validContent= false;
 	private Protocol protocol; 
 	private Agenda thisAgenda;
 	private MessagePool messagePool = MessagePoolProxy.getInstance();
@@ -81,33 +81,34 @@ public class DispatcherProcess extends Observable implements Runnable {
 	 * @param Protocol
 	 * @return true if payloadValid
 	 */
-	private boolean isProtocolValid (Protocol p, Object content){
+	private boolean isProtocolValid (Protocol protocol, Object content){
 
 		//TODO: VALIDATE MESSAGE CONTENT OR DISCARD INVALID CONTENT
 		boolean isValid=true;
 		
-		switch (p){
+		switch (protocol){
+		
+		
+	
 		case C_S_REQ_ADD:
 		case C_S_REQ_ALT:
 		case C_S_REQ_DEL:if (currentConnection.getMessage().getContent() instanceof Evento) isValid=true;break;
-		
+		case S_RCV_RDT:if (currentConnection.getMessage().getContent() instanceof String) isValid=true;break;		
 		
 		case S_RCV_SL:if (currentConnection.getMessage().getContent() instanceof List) isValid=true;break;
-		case S_S_RCV_ALOG:break;
-		case S_S_RCV_PROMO:break;
-		case S_S_RCV_HS:break;
-		
-		case S_C_RCV_AAD:break;
+		case S_S_RCV_ALOG:if (currentConnection.getMessage().getContent() instanceof LinkedList) isValid=true;break;
+		case A_RCV_AG:
+		case S_S_RCV_PROMO:if (currentConnection.getMessage().getContent() instanceof PromotionMessage) isValid=true;break;
 		
 		//no payload required. Ignore payload
 		case C_S_REQ_HS:
 		case S_S_REQ_PROMO:
 		case S_S_REQ_HS:
 		case S_S_REQ_ALOG:
-		case S_REQ_AG:
-		case C_REQ_AG:
-		case A_RCV_RDT: isValid=true; break;
-		
+		case A_REQ_AG:
+		case S_S_RCV_HS: isValid=true; break;
+		default:
+			break;
 		}
 		return isValid;
 	}
@@ -135,7 +136,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		
 		//Validate protocol content.
 		if (isProtocolValid(protocol,currentConnection.getMessage().getContent())){
-			this.auth=true;
+			this.validContent=true;
 		}
 	}
 
@@ -157,15 +158,12 @@ public class DispatcherProcess extends Observable implements Runnable {
 		processing=true;
 		
 		//INVALID MESSAGE CONTENT EXITS!!
-		//if (!auth) {
-		//	processing=false;
-		//}
-		
+		if (validContent) {
+
 		switch ( protocol ){
 			//REQUEST FULL AGENDA UPDATE FROM CLIENT
-			case C_REQ_AG:
+			case A_REQ_AG:
 				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
-				processing=false;
 			break;
 
 			//REQUEST ADD EVENTO FROM CLIENT
@@ -183,7 +181,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
 				}
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
-				processing=false;
 			break;
 			
 			//REQUEST_ALOG
@@ -193,7 +190,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 						new Connection(
 								new S_S_RCV_ALOG_MESSAGE(currentActionLog.fullList()),
 								currentConnection));
-				processing=false;
 				break;
 				
 			case C_S_REQ_ALT:
@@ -211,11 +207,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 					reply = "Couldnt alter, not realy a substitution!";
 				}
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
-				processing=false;
 			break;
 
 			case S_S_REQ_HS:
-				//TODO: BUG IF THERES ONLY ONE PRIMARY SERVER.
+
 				//m i primary = first of the serverlist?
 				if (currentServerInfo.givePrimary().equals(currentServerInfo.getMyAddress())){
 					//REDIRECT TO LAST OF THE LIST.
@@ -227,7 +222,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 					//SENDS ALOG TO SERVER
 					messagePool.postOutgoingConnection(
 							new Connection(
-									new S_S_RCV_ALOG_MESSAGE(currentActionLog.fullList()),
+									new A_RCV_AG_MESSAGE(this.thisAgenda),
 									currentConnection));
 					//SENDS SERVER LIST
 					messagePool.postOutgoingConnection(
@@ -245,7 +240,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 									new S_RCV_RDT_MESSAGE(currentServerInfo.giveNextInFront()),
 									currentConnection));
 				}
-				processing=false;
 				break;
 			
 			case C_S_REQ_HS:
@@ -286,7 +280,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 						}
 					}
 				}
-				processing=false;
 				break;
 				
 			case C_S_REQ_DEL:
@@ -304,7 +297,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 					reply = "Couldnt delete, cant find this evento! to delete.";
 				}
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
-				processing=false;
 			break;
 		
 			case S_S_RCV_HS:
@@ -338,7 +330,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 				} else {
 					messagePool.postOutgoingConnection(new Connection(new S_RCV_PROMO_MESSAGE(PromotionMessage.GOAHEAD),currentConnection));
 				}
-				processing=false;
 				break;
 				
 			case S_S_RCV_PROMO:
@@ -353,65 +344,42 @@ public class DispatcherProcess extends Observable implements Runnable {
 						currentServerInfo.setTimeStamp(message.getTimeStamp());
 						messagePool.postToAllServers(message,
 								currentServerInfo.listOfServers());
-						processing=false;
 						break;
 				} else { // STILL IN TIME FRAME
+					currentServerInfo.addOkToQuorum();
 					switch ((PromotionMessage)currentConnection.getMessage().getContent()){
-						case GOAHEAD: 
+						case GOAHEAD:
 							if (!currentServerInfo.hasQuorum()){
-								processing=false;
 								break;
 							} else{
 								//PROMOTE MYSELF
-								//accept clients (force redirection to myself).
-								messagePool.postToAllServers(new A_RCV_RDT_MESSAGE(),
-										currentClientList.listOfClients());
+								currentServerInfo.setPrimaryServer(currentServerInfo.getMyAddress());
+								//RDT TO SERVERS
+								messagePool.postToAllServers(new A_RCV_RDT_MESSAGE(currentServerInfo.getMyAddress()),currentServerInfo.listOfServers());
 							}
+							
 						break;
-						case ABORT:
+						case ABORT: 
+							currentServerInfo.clearQuorum();
+							messagePool.postOutgoingConnection(new Connection(new S_S_REQ_HS_MESSAGE(),	currentConnection));
 						break;
-					}
-					
-					}
-				}
-				//TODO:
-				processing=false;
-				break;
-			
-			case S_S_RCV_ALOG:
-				LinkedList<IMessage> temp = (LinkedList<IMessage>) currentConnection.getMessage().getContent();
-				Iterator<IMessage> it = temp.iterator();
-				while (it.hasNext()){
-					IMessage m = (IMessage) it.next();
-					switch ((Protocol)m.getHeader()){
-						case C_S_REQ_ADD:
-							thisAgenda.addEvento((Evento)m.getContent());
-							break;
-						case C_S_REQ_ALT:
-							thisAgenda.alterEvento((Evento)m.getContent());
-							break;
-						case C_S_REQ_DEL:
-							thisAgenda.removesEvento((Evento)m.getContent());
-							break;
-					default:
-						break;
+						}
 					}
 				}
-				processing=false;
 				break;
 			
-			case S_REQ_AG:
-				//TODO: NO TIME TO IMPLEMENT
-				break;
-				
 			case S_RCV_RDT:
+				//SERVER TRYS TO CONNECT TO PRIMARY AND ITS REDIRECTED TO THE LAST ONE.
 				LinkedList<String> temp1 = new LinkedList<String>();
 				temp1.add((String) currentConnection.getMessage().getContent());
+				//I TRY TO CONNECT TO THE REDIRECTED SERVER
 				messagePool.postToAllServers(new S_S_REQ_HS_MESSAGE(),temp1);
-				processing=false;
 				break;
 		default:
 			break;
 			}
+		}
+		processing=false;
 	}
+
 }
