@@ -18,6 +18,7 @@ import org.sd.data.ClientList;
 import org.sd.data.Evento;
 import org.sd.data.ServerInfo;
 import org.sd.protocol.A_RCV_AG_MESSAGE;
+import org.sd.protocol.A_RCV_RDT_MESSAGE;
 import org.sd.protocol.C_RCV_SL_MESSAGE;
 import org.sd.protocol.PromotionMessage;
 import org.sd.protocol.Protocol;
@@ -81,9 +82,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 	 * @return true if payloadValid
 	 */
 	private boolean isProtocolValid (Protocol p, Object content){
-		//CHECK STATE FLAGS
+
+		//TODO: VALIDATE MESSAGE CONTENT OR DISCARD INVALID CONTENT
 		boolean isValid=true;
-		/*
+		
 		switch (p){
 		case C_S_REQ_ADD:
 		case C_S_REQ_ALT:
@@ -98,7 +100,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		case S_C_RCV_AAD:break;
 		
 		//no payload required. Ignore payload
-		case C_S_REQ_HS_MESSAGE:
+		case C_S_REQ_HS:
 		case S_S_REQ_PROMO:
 		case S_S_REQ_HS:
 		case S_S_REQ_ALOG:
@@ -106,7 +108,7 @@ public class DispatcherProcess extends Observable implements Runnable {
 		case C_REQ_AG:
 		case A_RCV_RDT: isValid=true; break;
 		
-		}*/
+		}
 		return isValid;
 	}
 	
@@ -356,7 +358,15 @@ public class DispatcherProcess extends Observable implements Runnable {
 				} else { // STILL IN TIME FRAME
 					switch ((PromotionMessage)currentConnection.getMessage().getContent()){
 						case GOAHEAD: 
-
+							if (!currentServerInfo.hasQuorum()){
+								processing=false;
+								break;
+							} else{
+								//PROMOTE MYSELF
+								//accept clients (force redirection to myself).
+								messagePool.postToAllServers(new A_RCV_RDT_MESSAGE(),
+										currentClientList.listOfClients());
+							}
 						break;
 						case ABORT:
 						break;

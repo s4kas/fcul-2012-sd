@@ -23,13 +23,13 @@ public class ServerDispatcher implements IDispatcher {
 	private ArrayList <DispatcherProcess> dpList 					= new ArrayList<DispatcherProcess>();
 	private MessagePool messagePool 								= MessagePoolProxy.getInstance();
 	private Agenda agenda;
-	private ServerInfo currentServerList;
+	private ServerInfo currentServerInfo;
 	private ClientList currentClientList;
 	private ActionLog currentActionLog;
 		
 	public ServerDispatcher (Agenda a){
 		this.agenda=a;
-		currentServerList = new ServerInfo();
+		currentServerInfo = new ServerInfo();
 		currentActionLog = new ActionLog();
 		currentClientList = new ClientList();
 	}
@@ -66,7 +66,7 @@ public class ServerDispatcher implements IDispatcher {
 		try{
 			DispatcherProcess dp =  new DispatcherProcess(thisconnection,
 															agenda,
-															currentServerList,
+															currentServerInfo,
 															currentClientList,
 															currentActionLog);		
 			dp.run();
