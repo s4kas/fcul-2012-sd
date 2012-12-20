@@ -8,7 +8,7 @@ import org.sd.client.ui.ClientUI;
 import org.sd.common.messages.IMessage;
 import org.sd.data.Agenda;
 import org.sd.data.Evento;
-import org.sd.data.ServerList;
+import org.sd.data.ServerInfo;
 import org.sd.protocol.C_S_REQ_ADD_MESSAGE;
 import org.sd.protocol.C_S_REQ_ALT_MESSAGE;
 import org.sd.protocol.C_S_REQ_HS_MESSAGE;
@@ -17,7 +17,7 @@ public class ClientController {
 
 	private static ClientFacade clientFacade;
 	private static Agenda agenda = new Agenda();
-	private static ServerList serverList = new ServerList();
+	private static ServerInfo serverInfo = new ServerInfo();
 	
 	public static void main(String[] args) {
 		//start ui
@@ -156,8 +156,8 @@ public class ClientController {
 
 	public static void receiveServerList(List<String> content) {
 		//save locally
-		serverList = new ServerList();
-		serverList.listOfServers().addAll(content);
+		serverInfo = new ServerInfo();
+		serverInfo.listOfServers().addAll(content);
 		
 		//save in properties
 		ClientConfig cf = (ClientConfig) ClientConfigProxy.getConfig(false);

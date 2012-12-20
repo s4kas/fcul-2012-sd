@@ -6,14 +6,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.net.*;
 
-public class ServerList implements Serializable {
+public class ServerInfo implements Serializable {
 
 	private static final long serialVersionUID = -8235350151785732582L;
 	private LinkedList <String> serverIpList = new LinkedList <String>();
-	private String cachedLocalIpAddress; 
-	private long promotingTimeStamp;
+	private String cachedLocalIpAddress; //local ip address 
+	private long promotingTimeStamp; // used for promotion
+	private int quorum;			 //used for promotion
 	
-	public ServerList(){
+	public ServerInfo(){
 		promotingTimeStamp = 0;
 		try {
 			cachedLocalIpAddress = InetAddress.getLocalHost().getHostAddress();
@@ -69,16 +70,28 @@ public class ServerList implements Serializable {
 	}
 	
 	public synchronized boolean setPrimaryServer(String ip){
-		serverIpList.remove(ip); //remove or not dont care.
-		this.serverIpList.addFirst(ip); //primary Server head of the list.	
+		//remove if exists.
+		serverIpList.remove(ip);
+		//primary Server head of the list.
+		this.serverIpList.addFirst(ip); 	
 		return false;
 	}
 
-	public long getTimeStamp(){
-		return promotingTimeStamp;
+	public long getTimeStamp(){return promotingTimeStamp;}
+	
+	public void setTimeStamp(long timeStamp) {promotingTimeStamp = timeStamp;}
+	
+	public boolean hasQuorum(){
+		return quorum==0; 
 	}
 	
-	public void setTimeStamp(long timeStamp) {
-		promotingTimeStamp = timeStamp;
+	public void setQuorum(){
+		//ALL but myself from list.
+		this.quorum=serverIpList.size()-1;  
 	}
+	
+	public void addOkToQuorum(){
+		quorum--;
+	}
+	
 }

@@ -9,17 +9,17 @@ import org.sd.data.Agenda;
 public class S_RCV_PROMO_MESSAGE extends Message implements Serializable{
 
 	private static final long serialVersionUID = -8646404723846857L;
-	private String text;
+	private PromotionMessage pmsg;
 	
-	public S_RCV_PROMO_MESSAGE(String s) {
+	public S_RCV_PROMO_MESSAGE(PromotionMessage pmsg) {
 		this.timeStamp = new Date().getTime();
 		messageProtocol = Protocol.S_C_RCV_AAD;
-		text = s; 
+		this.pmsg = pmsg; 
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getContent() {
-		return (T) text;
+		return (T) pmsg;
 	}
 	
 	@SuppressWarnings("unchecked")

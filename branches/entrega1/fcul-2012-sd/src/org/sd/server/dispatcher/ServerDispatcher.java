@@ -10,7 +10,7 @@ import org.sd.common.messages.IMessage;
 import org.sd.data.ActionLog;
 import org.sd.data.Agenda;
 import org.sd.data.ClientList;
-import org.sd.data.ServerList;
+import org.sd.data.ServerInfo;
 import org.sd.protocol.Protocol;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
@@ -23,13 +23,13 @@ public class ServerDispatcher implements IDispatcher {
 	private ArrayList <DispatcherProcess> dpList 					= new ArrayList<DispatcherProcess>();
 	private MessagePool messagePool 								= MessagePoolProxy.getInstance();
 	private Agenda agenda;
-	private ServerList currentServerList;
+	private ServerInfo currentServerList;
 	private ClientList currentClientList;
 	private ActionLog currentActionLog;
 		
 	public ServerDispatcher (Agenda a){
 		this.agenda=a;
-		currentServerList = new ServerList();
+		currentServerList = new ServerInfo();
 		currentActionLog = new ActionLog();
 		currentClientList = new ClientList();
 	}
