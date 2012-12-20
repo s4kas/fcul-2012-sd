@@ -61,9 +61,8 @@ public class ServerDispatcher implements IDispatcher {
 		
 		IConnection  thisconnection = messagePool.takeIncomingConnection();
 		//Get protocol
-				 
-		//Goes for it.
 		try{
+			//Goes for it.
 			DispatcherProcess dp =  new DispatcherProcess(thisconnection,
 															agenda,
 															currentServerInfo,
