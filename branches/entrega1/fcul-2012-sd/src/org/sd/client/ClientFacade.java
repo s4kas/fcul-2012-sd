@@ -14,28 +14,30 @@ import org.sd.common.messages.IMessage;
 
 public class ClientFacade implements IAgentFacade, ICommunicator {
 	
-	private Socket clientSocket;
-	private ClientConfig clientConfig;
-	public static boolean isConnected = false;
-	public static int handShakeTries = 0;
 	public final static int MAX_HS_TRIES = 5;
 	public final static int RECONNECT_SECONDS = 10;
-	public boolean isHandShaked = false;
-	private ClientDispatchable clientDispatchable;
+	
+	private Socket clientSocket;
+	private ClientConfig clientConfig;
+	
+	private MessageQueue messageQueue;
 	private static Timer timer;
+	
+	public static boolean isConnected = false;
 	public static boolean isReconnecting = false;
+	public static boolean isConnecting = false;
 	
 	private Connection connection;
 
 	public void initialize(IConfig clientConfiguration) {
 		//do the validations
 		if (!(clientConfiguration instanceof ClientConfig)) {
-			//TODO BM tratar erros
+			return;
 		}
 		
 		//start the dispatching process
-		clientDispatchable = new ClientDispatchable();
-		clientDispatchable.addObserver(new ClientDispatcher());
+		messageQueue = new MessageQueue();
+		messageQueue.addObserver(new ClientDispatcher());
 		
 		//get the client config
 		clientConfig = (ClientConfig) clientConfiguration;
@@ -48,9 +50,11 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 				
 		while (!isConnected && tries < servers.length) {
 			String server = servers[tries];
-				
+			ClientController.updateRecentEvents("Client - Trying server: " + server);
+			
 			try {
 				//start remote socket
+				isConnecting = true;
 				clientSocket = new Socket(server,port);
 						
 				//start new connection
@@ -59,19 +63,24 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 				//set connected
 				isConnected = true;
 				isReconnecting = false;
+				isConnecting = false;
+				ClientController.updateRecentEvents("Client - Connected to server: "+server);
 						
 			} catch (UnknownHostException e) {
 				//set disconnected
+				ClientController.updateRecentEvents("Client - Unknown Server: " + server);
 				isConnected = false;
 			} catch (IOException e) {
 				//set disconnected
+				ClientController.updateRecentEvents("Client - Problems on server: " + server);
 				isConnected = false;
 			}
+			ClientController.updateStatus(); 
 					
 			tries++;
 		}
 				
-		//nao consegui ligar
+		//nao consegui ligar ou desliguei-me
 		if (!isConnected) {
 			terminate();
 			reconnect();
@@ -82,7 +91,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 			public void run() {
 				while (isConnected) {
 					IMessage receivedMessage = receiveMessage();
-					clientDispatchable.postMessage(receivedMessage);
+					messageQueue.postMessage(receivedMessage);
 				}
 			}
 		}).start();
@@ -98,6 +107,7 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 					connection.getOutputStream().writeObject(message);
 				} catch (IOException e) {
 					//falhou o envio da msg
+					ClientController.updateRecentEvents("Client - Couldn't send: " + message);
 				}	
 			}
 					
@@ -108,13 +118,17 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 		try {
 			return (IMessage) connection.getInputStream().readObject();
 		} catch (IOException e) {
+			ClientController.updateRecentEvents("Client - Server disconnected");
+			terminate();
+			reconnect();
 		} catch (ClassNotFoundException e) {
+			ClientController.updateRecentEvents("Client - Reading failed");
 		}
 		return null;
 	}
 
 	public void terminate() {
-		
+		ClientController.updateRecentEvents("Client - Disconnected");
 	    try {
 	    	//close the streams
 	    	clientSocket.close();
@@ -123,12 +137,17 @@ public class ClientFacade implements IAgentFacade, ICommunicator {
 	    
 	    //stop listening
 	    isConnected = false;
-	    isHandShaked = false;
+	    ClientController.updateStatus();
 	}
 	
 	public void reconnect() {
+		if (timer != null) {
+			timer.cancel();
+			timer.purge();
+		}
 		isReconnecting = true;
 		timer = new Timer();
+		ClientController.updateRecentEvents("Client - Reconnecting in "+RECONNECT_SECONDS + " seconds.");
 		timer.schedule(new ReconnectTask(), RECONNECT_SECONDS*1000);
 	}
 	

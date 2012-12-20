@@ -18,7 +18,7 @@ public class ClientDispatcher implements Observer {
 
 	@SuppressWarnings("unchecked")
 	public void update(Observable obs, Object obj) {
-		IMessage message = ((ClientDispatchable) obs).getMessage();
+		IMessage message = ((MessageQueue) obs).getMessage();
 		
 		if (message == null) {
 			return;
@@ -42,15 +42,12 @@ public class ClientDispatcher implements Observer {
 			ClientController.receiveAgenda((Agenda) message.getContent());
 			break;
 		case S_C_RCV_HS:
-			ClientController.updateHandShakeStatus(true);
 			ClientController.updateRecentEvents("Server - Sent HandShake Ok");
+			ClientController.updateHandShakeStatus(true);
 			break;
 		default:
 			System.out.println("Não entendo o protocolo: " + protocol);
 			break;
 		}
 	}
-	
-	
-	
 }

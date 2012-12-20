@@ -4,11 +4,11 @@ import java.util.LinkedList;
 import java.util.Observable;
 import org.sd.common.messages.IMessage;
 
-public class ClientDispatchable extends Observable {
+public class MessageQueue extends Observable {
 	
 	private final LinkedList<IMessage> messageQueue;
 	
-	public ClientDispatchable() {
+	public MessageQueue() {
 		messageQueue = new LinkedList<IMessage>();
 	}
 	

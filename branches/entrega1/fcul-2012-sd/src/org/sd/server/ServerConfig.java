@@ -1,34 +1,44 @@
 package org.sd.server;
 
+import java.util.Properties;
+
 import org.sd.common.IConfig;
+import org.sd.common.properties.PropertiesManager;
 
 public class ServerConfig implements IConfig {
 	
-	private int serverPort ;
-	private int connectionTimeout;
-	private int nThreads;
+	private Properties serverProperties;
+	private final static String NUMBER_THREADS = "nThreads";
+	private final static String SERVER_PORT = "serverPort";
+	private final static String CONNECTION_TIMEOUT = "connectionTimeout";
 	
 	public boolean loadConfig() {
-		//FIXME BM implement loadProperties
-		
-		this.serverPort = 1500;
-		this.connectionTimeout = 15000;
-		this.nThreads = 10;
-		
+		if (serverProperties == null) {
+			serverProperties = PropertiesManager.getServerProps();
+		}
 		//initialization went smoothly
 		return true;
 	}
 
 	public int getServerPort() {
-		return serverPort;
+		if (serverProperties != null) {
+			return Integer.parseInt(String.valueOf(serverProperties.get(SERVER_PORT)));
+		}
+		return -1;
 	}
 	
 	public int getConnectionTimeout() {
-		return connectionTimeout;
+		if (serverProperties != null) {
+			return Integer.parseInt(String.valueOf(serverProperties.get(CONNECTION_TIMEOUT)));
+		}
+		return -1;
 	}
 	
 	public int getNThreads() {
-		return this.nThreads;
+		if (serverProperties != null) {
+			return Integer.parseInt(String.valueOf(serverProperties.get(NUMBER_THREADS)));
+		}
+		return -1;
 	}
 
 	public boolean saveConfig() {

@@ -51,11 +51,9 @@ public class MessagePool extends Dispatchable {
 				//notify observers
 				notifyConnectionObservers();
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//nao conheco este host
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//nao consegui ligar
 			}
 		}
 	}
@@ -68,7 +66,6 @@ public class MessagePool extends Dispatchable {
 		//warn the observers
 		notifyServerSideObservers();
 		
-		// TODO Auto-generated method stub
 		return true;
 	}
 

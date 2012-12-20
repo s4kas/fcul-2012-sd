@@ -89,6 +89,7 @@ public class DayPanel extends JPanel implements ActionListener {
 			String line = eventos.get(i).getStartsEndsHourMinute() 
 					+ " - " + eventos.get(i).getDescript();
 			button = new JRadioButton(line);
+			radios.add(button);
 			radioGroup.add(button);
 			eventsPanel.add(button,gbc);
 			gbc.gridy++;
@@ -360,8 +361,6 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro adicionar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
-		
-		constructListEvents();
 	}
 	
 	private void removeEvent() {
@@ -385,8 +384,6 @@ public class DayPanel extends JPanel implements ActionListener {
 		System.out.println(result);
 		//0 = sim
 		//1 = nao
-		
-		constructListEvents();
 	}
 	
 	private void modifyEvent() {
@@ -415,8 +412,6 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro modificar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
-		
-		constructListEvents();
 	}
 	
 	private boolean validateFields() {

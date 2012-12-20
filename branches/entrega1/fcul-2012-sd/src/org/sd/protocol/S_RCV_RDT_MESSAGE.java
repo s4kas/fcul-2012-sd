@@ -1,10 +1,7 @@
 package org.sd.protocol;
 
 import java.io.Serializable;
-import java.util.Date;
-
 import org.sd.common.messages.Message;
-import org.sd.data.Agenda;
 
 public class S_RCV_RDT_MESSAGE extends Message implements Serializable{
 
@@ -12,7 +9,6 @@ public class S_RCV_RDT_MESSAGE extends Message implements Serializable{
 	private String ip;
 	
 	public S_RCV_RDT_MESSAGE(String ip) {
-		this.timeStamp = new Date().getTime();
 		messageProtocol = Protocol.S_RCV_RDT;
 	}
 	
@@ -24,9 +20,5 @@ public class S_RCV_RDT_MESSAGE extends Message implements Serializable{
 	@SuppressWarnings("unchecked")
 	public Protocol getHeader() {
 		return messageProtocol;
-	}
-
-	public long getTimeStamp() {
-		return this.timeStamp;
 	}
 }
