@@ -28,7 +28,6 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	private MonthPanel monthPanel;
 	private int month, year, yearLowLimit, yearSupLimit;
 	private Icon back, forward;
-	private JButton connectionButton;
 	private JLabel connectionLabel;
 	private JTextArea recentEventsText;
 
@@ -45,10 +44,6 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new GridBagLayout());
-	}
-
-	public JButton getConnectionButton() {
-		return connectionButton;
 	}
 
 	public JLabel getConnectionLabel() {
@@ -82,7 +77,7 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		return this;
 	}
 	
-	private void reconstruct() {
+	public void reconstruct() {
 		this.removeAll();
 		this.construct();
 		this.revalidate();
@@ -145,12 +140,6 @@ public class CalendarPanel extends JPanel implements ActionListener {
 		gbc.gridy = 1;
 		statusPanel.add(connectionLabel,gbc);
 		
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		connectionButton = new JButton();
-		connectionButton.addActionListener(this);
-		statusPanel.add(connectionButton,gbc);
-		
 		statusPanel.setPreferredSize(new Dimension(250,80));
 		add(statusPanel, c);
 	}
@@ -196,15 +185,6 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	
 	public void actionPerformed(ActionEvent ev) {
 		JButton jb = (JButton) ev.getSource();
-		
-		//efetuou ligacao/desligou
-		if (jb == this.connectionButton) {
-			if ("Ligar".equals(jb.getText())) {
-				ClientController.start();
-			} else {
-				ClientController.stop();
-			}
-		}
 		
 		//mudou de ano
 		if (jb.getParent() == this.yearChoice) {

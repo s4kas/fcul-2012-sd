@@ -22,6 +22,8 @@ public class ServerFacade implements IAgentFacade {
 	private ServerConfig serverConfig;
 	private ConnectionPool connectionPool;
 	private MessagePool messagePool;
+	private ServerDispatcher serverDispatcher;
+	private ConnectionDispatcher connectionDispatcher;
 	
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
@@ -42,7 +44,9 @@ public class ServerFacade implements IAgentFacade {
 		
 		//start the MessagePool
 		messagePool = MessagePoolProxy.getInstance();
-		messagePool.addDispatchers(new ServerDispatcher(new Agenda()), new ConnectionDispatcher());
+		serverDispatcher = new ServerDispatcher(new Agenda());
+		connectionDispatcher = new ConnectionDispatcher();
+		messagePool.addDispatchers(serverDispatcher, connectionDispatcher);
 	}
 	
 	public void start() {

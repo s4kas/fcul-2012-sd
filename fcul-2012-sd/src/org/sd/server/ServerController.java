@@ -84,6 +84,7 @@ public class ServerController extends JFrame implements ActionListener {
 		runningServerFacade = new ServerFacade();
 		runningServerFacade.initialize(ServerConfigProxy.getConfig(true));
 		controlPanelLayoutInit(); //Inicializa o JPanel
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.getContentPane().add(controlPanel,BorderLayout.CENTER);
 	    this.pack();
  	}

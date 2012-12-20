@@ -1,7 +1,5 @@
 package org.sd.protocol;
 
-import java.util.Date;
-
 import org.sd.common.messages.Message;
 
 public class C_S_REQ_HS_MESSAGE extends Message {
@@ -10,7 +8,6 @@ public class C_S_REQ_HS_MESSAGE extends Message {
 	
 	
 	public C_S_REQ_HS_MESSAGE() {
-		this.timeStamp = new Date().getTime();
 		messageProtocol = Protocol.C_S_REQ_HS;
 	}
 	
@@ -22,9 +19,4 @@ public class C_S_REQ_HS_MESSAGE extends Message {
 	public Protocol getHeader() {
 		return messageProtocol;
 	}
-	
-	public long getTimeStamp() {
-		return this.timeStamp;
-	}
-
 }

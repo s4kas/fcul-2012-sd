@@ -43,23 +43,14 @@ public class ClientUI {
 		}
 	}
 	
-	public static void updateStatus(boolean connected, boolean reconnecting) {
+	public static void updateStatus(boolean connected) {
 		JLabel connectionLabel = calendarPanel.getConnectionLabel();
-		JButton connectionButton = calendarPanel.getConnectionButton();
 		if (connected) {
 			connectionLabel.setForeground(Color.GREEN);
 			connectionLabel.setText("Conectado");
-			connectionButton.setText("Desligar");
 		} else {
 			connectionLabel.setForeground(Color.RED);
 			connectionLabel.setText("Desconectado");
-			connectionButton.setText("Ligar");
-		}
-		
-		if (reconnecting) {
-			connectionButton.setEnabled(false);
-		} else {
-			connectionButton.setEnabled(true);
 		}
 	}
 	
@@ -67,6 +58,10 @@ public class ClientUI {
 		JTextArea textArea = calendarPanel.getRecentEventsText();
 		textArea.setText(textArea.getText() + "\n" + message);
 		textArea.validate();
+	}
+	
+	public static void updateCalendarFrame() {
+		calendarPanel.reconstruct();
 	}
 	
 	private static void constructCalendarFrame() {

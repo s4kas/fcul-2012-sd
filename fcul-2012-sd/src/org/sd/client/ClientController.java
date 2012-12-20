@@ -1,6 +1,7 @@
 package org.sd.client;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
@@ -17,14 +18,17 @@ public class ClientController {
 
 	private static ClientFacade clientFacade;
 	private static Agenda agenda = new Agenda();
-	private static ServerInfo serverInfo = new ServerInfo();
+	private static LinkedList<String> serverList = new LinkedList<String>();
+	
+	private static int handShakeTries = 0;
+	private static boolean isHandShaked = false;
 	
 	public static void main(String[] args) {
 		//start ui
 		SwingUtilities.invokeLater(new Runnable() {
 	    	public void run(){  
 	    		ClientUI.buildUI();
-	    		updateStatus();
+	    		start();
 	    	}
 	    });
 	}
@@ -34,26 +38,24 @@ public class ClientController {
 			clientFacade = new ClientFacade();
 			clientFacade.initialize(ClientConfigProxy.getConfig(true));
 		}
-		//start connection to server
-		updateRecentEvents("Client - Trying to connect...");
-		clientFacade.start();
-		updateStatus();
 		
+		(new Thread() {
+			public void run(){
+				//start connection to server
+				ClientController.updateStatus();
+				clientFacade.start();
 		
-		if (ClientFacade.isConnected) {
-			updateRecentEvents("Client - Connected!");
-			waiting(5000);
-			sendHandShake();
-		} else {
-			updateStatus();
-			updateRecentEvents("Client - Can't connect!");
-			updateRecentEvents("Client - Will reconnect in "+ClientFacade.RECONNECT_SECONDS+" seg...");
-		}
+				if (ClientFacade.isConnected) {
+					waiting(5000);
+					sendHandShake();
+				}
+			}
+		}).start();
 	}
 	
 	private static boolean sendHandShake() {
 		//not connected
-		if (clientFacade == null) {
+		if (clientFacade == null || !ClientFacade.isConnected) {
 			return false;
 		}
 		
@@ -62,12 +64,10 @@ public class ClientController {
 		clientFacade.sendMessage(handShake);
 		
 		updateRecentEvents("Client - Handshake sent.");
-		
 		return true;
-
 	}
 	
-	private static void sendAgendaRequest() {
+	public static void sendAgendaRequest() {
 		
 	}
 	
@@ -75,47 +75,23 @@ public class ClientController {
 		if (clientFacade != null) {
 			clientFacade.terminate();
 		}
-		updateRecentEvents("Client - Disconnected!");
 		updateStatus();
+	}
+
+	public static void updateHandShakeStatus(boolean status) {
+		if (clientFacade == null) {
+			isHandShaked = false;
+			return;
+		}
+		isHandShaked = status;
 	}
 	
 	public static void updateStatus() {
 		if (clientFacade == null) {
-			ClientUI.updateStatus(false, false);
+			ClientUI.updateStatus(false);
 		} else {
-			ClientUI.updateStatus(ClientFacade.isConnected, ClientFacade.isReconnecting);
+			ClientUI.updateStatus(ClientFacade.isConnected);
 		}
-	}
-	
-	public static boolean addEvent(int day, int month, int year, int startHour,
-			int startMinutes, int endHour, int endMinutes, String title, String content) {
-		//not connected
-		if (clientFacade == null) {
-			return false;
-		}
-		
-		//create new event message
-		Evento ev = new Evento(year,month,day,startHour, startMinutes,
-				year,month,day,endHour,endMinutes, 
-				(title + " - " + content),"");
-		C_S_REQ_ADD_MESSAGE message = new C_S_REQ_ADD_MESSAGE(ev);
-		agenda.addEvento(ev);
-		
-		//try to send the message
-		clientFacade.sendMessage(message);
-		
-		updateRecentEvents("Client - Sent Add Event: " + message.getContent().getDescript());
-		
-		return true;
-	}
-	
-	public static void receiveAgenda(Agenda newAgenda) {
-		agenda = new Agenda();
-		agenda.ListEventos().addAll(newAgenda.ListEventos());
-	}
-	
-	public static void deleteEvent(String id) {
-		
 	}
 	
 	public static void updateRecentEvents(String message) {
@@ -138,26 +114,18 @@ public class ClientController {
 		return !getEventsForDayMonthYear(day,month,year).isEmpty();
 	}
 	
-	private static void waiting(int mili) {
-		try {
-			Thread.sleep(mili);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public static void updateHandShakeStatus(boolean status) {
-		if (clientFacade == null) {
-			return;
-		}
-		clientFacade.isHandShaked = status;
+	public static void receiveAgenda(Agenda newAgenda) {
+		agenda = new Agenda();
+		agenda.ListEventos().addAll(newAgenda.ListEventos());
+		ClientUI.updateCalendarFrame();
 	}
 
 	public static void receiveServerList(List<String> content) {
-		//save locally
-		serverInfo = new ServerInfo();
-		serverInfo.listOfServers().addAll(content);
+		if (serverList == null) {
+			serverList = new LinkedList<String>();
+		}
+		serverList.clear();
+		serverList.addAll(content);
 		
 		//save in properties
 		ClientConfig cf = (ClientConfig) ClientConfigProxy.getConfig(false);
@@ -169,7 +137,7 @@ public class ClientController {
 			int startHour, int startMinute, int endHour, int endMinute,
 			String title, String contentText) {
 		//not connected
-		if (clientFacade == null) {
+		if (clientFacade == null || !ClientFacade.isConnected) {
 			return false;
 		}
 				
@@ -179,6 +147,7 @@ public class ClientController {
 				(title + " - " + contentText),"");
 		C_S_REQ_ALT_MESSAGE message = new C_S_REQ_ALT_MESSAGE(ev);
 		agenda.alterEvento(ev);
+		ClientUI.updateCalendarFrame();
 				
 		//try to send the message
 		clientFacade.sendMessage(message);
@@ -186,5 +155,41 @@ public class ClientController {
 		updateRecentEvents("Client - Sent Modify Event: " + message.getContent().getDescript());
 				
 		return true;
+	}
+	
+	public static boolean addEvent(int day, int month, int year, int startHour,
+			int startMinutes, int endHour, int endMinutes, String title, String content) {
+		//not connected
+		if (clientFacade == null || !ClientFacade.isConnected) {
+			return false;
+		}
+		
+		//create new event message
+		Evento ev = new Evento(year,month,day,startHour, startMinutes,
+				year,month,day,endHour,endMinutes, 
+				(title + " - " + content),"");
+		C_S_REQ_ADD_MESSAGE message = new C_S_REQ_ADD_MESSAGE(ev);
+		agenda.addEvento(ev);
+		ClientUI.updateCalendarFrame();
+		
+		//try to send the message
+		clientFacade.sendMessage(message);
+		
+		updateRecentEvents("Client - Sent Add Event: " + message.getContent().getDescript());
+		
+		return true;
+	}
+	
+	public static void deleteEvent(Evento ev) {
+		ClientUI.updateCalendarFrame();
+	}
+	
+	private static void waiting(int mili) {
+		try {
+			Thread.sleep(mili);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
