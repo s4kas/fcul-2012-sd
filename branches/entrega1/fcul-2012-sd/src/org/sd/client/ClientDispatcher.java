@@ -32,7 +32,7 @@ public class ClientDispatcher implements Observer {
 			ClientController.updateRecentEvents("Server - Sent Server List");
 			break;
 		case A_RCV_RDT:
-			//redirect to another server
+			ClientController.redirectToServer((String) message.getContent());
 			break;
 		case S_C_RCV_AAD:
 			ClientController.updateRecentEvents("Server - " + String.valueOf(message.getContent()));

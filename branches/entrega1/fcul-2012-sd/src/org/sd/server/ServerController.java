@@ -3,12 +3,17 @@ package org.sd.server;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class ServerController extends JFrame implements ActionListener {
 	
@@ -21,7 +26,9 @@ public class ServerController extends JFrame implements ActionListener {
 	private GroupLayout 									layout;
 	private JScrollPane 									sp = new JScrollPane();
 	private ServerFacade 									runningServerFacade;
-	
+	private JRadioButton 									primary, secondary;
+	private JTextField										secondaryAddress;
+	private JLabel											secondaryAddressLabel;
 	
 	/***********************************************************************
 	 * DEBUG WINDOW
@@ -43,11 +50,30 @@ public class ServerController extends JFrame implements ActionListener {
 		dialog.setWrapStyleWord(true);
     	dialog.setEditable(false);
 
+    	//simplebuttons
     	startButton.setText("Iniciar");
     	startButton.addActionListener(this);
     	stopButton.setText("Parar");
 		stopButton.addActionListener(this);
+		stopButton.setEnabled(false);
+		stopButton.repaint();
 		sp.getViewport().add(dialog);
+		
+		//radiobuttons
+		ButtonGroup rg = new ButtonGroup();
+		primary = new JRadioButton("Primário");
+		primary.addActionListener(this);
+		rg.add(primary);
+		primary.setSelected(true);
+		
+		secondary = new JRadioButton("Secundário");
+		secondary.addActionListener(this);
+		rg.add(secondary);
+		
+		//input for secondary server address
+		secondaryAddressLabel = new JLabel("Endereço do primário:");
+		secondaryAddress = new JTextField();
+		secondaryAddress.setEnabled(false);
 
 		//Definicao do layout das caixas
 	    layout = new GroupLayout(controlPanel);
@@ -61,6 +87,10 @@ public class ServerController extends JFrame implements ActionListener {
 	    				.addComponent(stopButton)
 	    				.addComponent(startButton)
 	    				.addComponent(sp)
+	    				.addComponent(primary)
+	    				.addComponent(secondary)
+	    				.addComponent(secondaryAddressLabel)
+	    				.addComponent(secondaryAddress)
 	    				)
 	    		);
 	    
@@ -69,7 +99,10 @@ public class ServerController extends JFrame implements ActionListener {
 				.addComponent(stopButton)
 				.addComponent(startButton)
 				.addComponent(sp)
-
+				.addComponent(primary)
+	    		.addComponent(secondary)
+	    		.addComponent(secondaryAddressLabel)
+	    		.addComponent(secondaryAddress)
 	    );
 	}
 
@@ -90,6 +123,11 @@ public class ServerController extends JFrame implements ActionListener {
  	}
 	
 	public void start() {
+		if (this.primary.isSelected()) {
+			runningServerFacade.setIsPrimaryServer();
+		} else if (this.secondary.isSelected()) {
+			runningServerFacade.addPrimaryServer(secondaryAddress.getText());
+		}
 		runningServerFacade.start();
 		addToInfoConsole("ServerFacede Initialized!");
 		this.stopButton.setEnabled(true);
@@ -113,11 +151,20 @@ public class ServerController extends JFrame implements ActionListener {
 	 * ACTION PERFORMED
 	 */
 	public void actionPerformed(ActionEvent e) {
-		JButton src = (JButton) e.getSource();
-		if (src == this.stopButton) {
-			this.stop();
-		} else if (src == this.startButton) {
-			this.start();
+		if (e.getSource() instanceof JButton) {
+			JButton src = (JButton) e.getSource();
+			if (src == this.stopButton) {
+				this.stop();
+			} else if (src == this.startButton) {
+				this.start();
+			} 
+		} else if (e.getSource() instanceof JRadioButton) {
+			JRadioButton src = (JRadioButton) e.getSource();
+			if (src == this.secondary) {
+				secondaryAddress.setEnabled(true);
+			} else if (src == this.primary) {
+				secondaryAddress.setEnabled(false);
+			}
 		}
 	}
 	
@@ -129,7 +176,6 @@ public class ServerController extends JFrame implements ActionListener {
 	 */
 	public static void main(String[] args) {
 		ServerController s = new ServerController();
-		s.start();
 		s.setVisible(true);
 		ServerController.addToInfoConsole("Inicializado");
 	}

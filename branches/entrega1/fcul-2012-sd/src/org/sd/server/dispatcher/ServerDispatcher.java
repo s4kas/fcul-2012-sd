@@ -1,17 +1,12 @@
 package org.sd.server.dispatcher;
 
 
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
-
 import org.sd.common.connection.IConnection;
-import org.sd.common.messages.IMessage;
 import org.sd.data.ActionLog;
 import org.sd.data.Agenda;
 import org.sd.data.ClientList;
 import org.sd.data.ServerInfo;
-import org.sd.protocol.Protocol;
 import org.sd.server.message.MessagePool;
 import org.sd.server.message.MessagePoolProxy;
 
@@ -32,6 +27,10 @@ public class ServerDispatcher implements IDispatcher {
 		currentServerInfo = new ServerInfo();
 		currentActionLog = new ActionLog();
 		currentClientList = new ClientList();
+	}
+
+	public ServerInfo getCurrentServerInfo() {
+		return currentServerInfo;
 	}
 
 	/*****************************************************
