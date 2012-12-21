@@ -1,6 +1,7 @@
 package org.sd.data;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.sd.server.ServerController;
@@ -8,6 +9,7 @@ import org.sd.server.ServerController;
 public final class Evento implements Serializable ,Cloneable{
 
 	private static final long serialVersionUID = 5789258183400060095L;
+	private static final String DATE_FORMAT = "yyyyMMddHHmm";
 	private Calendar starts = Calendar.getInstance();
 	private Calendar ends = Calendar.getInstance();
 	private String descript;
@@ -89,9 +91,14 @@ public final class Evento implements Serializable ,Cloneable{
 	 * @return true if is equal
 	 */
 	public boolean equalsByDateTime (Evento other){
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		
-		return this.starts.equals(other.starts) &&
-				this.ends.equals(other.ends);
+		String thisStarts = sdf.format(this.starts.getTime());
+		String thisEnds = sdf.format(this.ends.getTime());
+		String otherStarts = sdf.format(other.starts.getTime());
+		String otherEnds = sdf.format(other.ends.getTime());
+		
+		return thisStarts.equals(otherStarts) && thisEnds.equals(otherEnds);
 	}
 	
 	public boolean equalsByDayMonthYear(int day, int month, int year) {
