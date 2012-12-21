@@ -2,9 +2,7 @@ package org.sd.protocol;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import org.sd.common.messages.Message;
-import org.sd.data.Agenda;
 
 public class A_RCV_RDT_MESSAGE extends Message implements Serializable{
 
