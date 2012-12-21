@@ -31,6 +31,10 @@ public class CalendarPanel extends JPanel implements ActionListener {
 	private JLabel connectionLabel;
 	private JTextArea recentEventsText;
 
+	public MonthPanel getMonthPanel() {
+		return monthPanel;
+	}
+
 	public CalendarPanel(int actualMonth, int actualYear, int yearLowLimit, 
 			int yearSupLimit) {
 		this.year = actualYear;

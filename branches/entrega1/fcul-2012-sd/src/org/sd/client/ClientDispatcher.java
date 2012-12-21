@@ -46,7 +46,7 @@ public class ClientDispatcher implements Observer {
 			ClientController.updateHandShakeStatus(true);
 			break;
 		default:
-			System.out.println("Não entendo o protocolo: " + protocol);
+			ClientController.updateRecentEvents("Client - What is " + protocol + " ? I don't understand!!!");
 			break;
 		}
 	}

@@ -28,9 +28,7 @@ public class ActionLog implements Serializable{
 	}
 	
 	public synchronized List<IMessage> SubSetAfter (IMessage e){
-		List <IMessage> subsetof = new LinkedList <IMessage>();
-		subsetof.addAll(actionLog.indexOf(e), actionLog);
-		return subsetof;
+		return actionLog.subList(actionLog.indexOf(e), actionLog.size());
 	}
 	
 	public synchronized LinkedList<IMessage> fullList (){

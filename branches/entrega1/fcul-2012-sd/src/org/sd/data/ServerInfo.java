@@ -17,7 +17,6 @@ public class ServerInfo implements Serializable {
 	public ServerInfo(){
 		promotingTimeStamp = 0;
 		quorum=0;
-		setThisAsPrimary();
 	}
 	
 	public void setThisAsPrimary() {
@@ -27,7 +26,8 @@ public class ServerInfo implements Serializable {
 			System.exit(1);
 			e.printStackTrace();
 		}
-		this.serverIpList.add (cachedLocalIpAddress);
+		this.serverIpList.remove(cachedLocalIpAddress);
+		this.serverIpList.addFirst (cachedLocalIpAddress);
 	}
 
 	public void addLast(String s){
