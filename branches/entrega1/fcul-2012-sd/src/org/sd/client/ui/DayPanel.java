@@ -85,6 +85,7 @@ public class DayPanel extends JPanel implements ActionListener {
 		
 		JRadioButton button;
 		radioGroup = new ButtonGroup();
+		radios = new ArrayList<JRadioButton>();
 		for (int i = 0; i < eventos.size(); i ++) {
 			String line = eventos.get(i).getStartsEndsHourMinute() 
 					+ " - " + eventos.get(i).getDescript();
@@ -239,9 +240,9 @@ public class DayPanel extends JPanel implements ActionListener {
 			return null;
 		}
 		
-		int startHour = eventos.get(index).getStartCalendar().get(Calendar.HOUR);
+		int startHour = eventos.get(index).getStartCalendar().get(Calendar.HOUR_OF_DAY);
 		int startMinute = eventos.get(index).getStartCalendar().get(Calendar.MINUTE);
-		int endHour = eventos.get(index).getEndCalendar().get(Calendar.HOUR);
+		int endHour = eventos.get(index).getEndCalendar().get(Calendar.HOUR_OF_DAY);
 		int endMinute = eventos.get(index).getEndCalendar().get(Calendar.MINUTE);
 		String[] temp = eventos.get(index).getDescript().split("-");
 		String title = temp[0];
@@ -361,6 +362,7 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro adicionar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
+		this.back.doClick();
 	}
 	
 	private void removeEvent() {
@@ -381,9 +383,20 @@ public class DayPanel extends JPanel implements ActionListener {
 				options,
 				options[0]);
 		
-		System.out.println(result);
-		//0 = sim
-		//1 = nao
+		if (result == JOptionPane.YES_OPTION) {
+			int index = -1;
+			for (int i = 0; i < radios.size(); i ++) {
+				if (radios.get(i).isSelected()) {
+					index = i;
+					break;
+				}
+			}
+			Evento ev = eventos.get(index);
+			ClientController.deleteEvent(ev);
+			ClientController.updateRecentEvents("Client - Sent delete message");
+		}
+		
+		this.back.doClick();
 	}
 	
 	private void modifyEvent() {
@@ -412,6 +425,7 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro modificar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
+		this.back.doClick();
 	}
 	
 	private boolean validateFields() {

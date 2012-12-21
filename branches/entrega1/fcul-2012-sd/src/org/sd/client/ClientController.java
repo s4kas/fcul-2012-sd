@@ -12,6 +12,7 @@ import org.sd.data.Evento;
 import org.sd.data.ServerInfo;
 import org.sd.protocol.C_S_REQ_ADD_MESSAGE;
 import org.sd.protocol.C_S_REQ_ALT_MESSAGE;
+import org.sd.protocol.C_S_REQ_DEL_MESSAGE;
 import org.sd.protocol.C_S_REQ_HS_MESSAGE;
 
 public class ClientController {
@@ -65,10 +66,6 @@ public class ClientController {
 		
 		updateRecentEvents("Client - Handshake sent.");
 		return true;
-	}
-	
-	public static void sendAgendaRequest() {
-		
 	}
 	
 	public static void stop() {
@@ -132,12 +129,16 @@ public class ClientController {
 		cf.setServerList(content);
 		cf.saveConfig();
 	}
+	
+	public static void sendAgendaRequest() {
+		
+	}
 
 	public static boolean modifyEvent(int day, int month, int year,
 			int startHour, int startMinute, int endHour, int endMinute,
 			String title, String contentText) {
 		//not connected
-		if (clientFacade == null || !ClientFacade.isConnected) {
+		if (clientFacade == null || !ClientFacade.isConnected || !isHandShaked) {
 			return false;
 		}
 				
@@ -160,7 +161,7 @@ public class ClientController {
 	public static boolean addEvent(int day, int month, int year, int startHour,
 			int startMinutes, int endHour, int endMinutes, String title, String content) {
 		//not connected
-		if (clientFacade == null || !ClientFacade.isConnected) {
+		if (clientFacade == null || !ClientFacade.isConnected || !isHandShaked) {
 			return false;
 		}
 		
@@ -180,8 +181,21 @@ public class ClientController {
 		return true;
 	}
 	
-	public static void deleteEvent(Evento ev) {
+	public static boolean deleteEvent(Evento ev) {
+		if (clientFacade == null || !ClientFacade.isConnected || !isHandShaked) {
+			return false;
+		}
+		
+		C_S_REQ_DEL_MESSAGE message = new C_S_REQ_DEL_MESSAGE(ev);
+		agenda.removesEvento(ev);
 		ClientUI.updateCalendarFrame();
+		
+		//try to send message
+		clientFacade.sendMessage(message);
+		
+		updateRecentEvents("Client - Sent Del Event: " + message.getContent().getDescript());
+		
+		return true;
 	}
 	
 	private static void waiting(int mili) {
