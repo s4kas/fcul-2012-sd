@@ -29,6 +29,10 @@ public class ServerFacade implements IAgentFacade {
 	private Socket clientSocket;
 	
 	private boolean isListening = true;
+	
+	public ServerDispatcher getServerDispatcher() {
+		return serverDispatcher;
+	}
 
 	public void initialize(IConfig serverConfiguration) {
 		if (!(serverConfiguration instanceof ServerConfig)) {
@@ -91,5 +95,13 @@ public class ServerFacade implements IAgentFacade {
 		
 		//server stops listening for connections
 		isListening = false;
+	}
+
+	public void setIsPrimaryServer() {
+		serverDispatcher.getCurrentServerInfo().setThisAsPrimary();
+	}
+
+	public void addPrimaryServer(String server) {
+		serverDispatcher.getCurrentServerInfo().addLast(server);
 	}
 }

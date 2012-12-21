@@ -17,6 +17,10 @@ public class ServerInfo implements Serializable {
 	public ServerInfo(){
 		promotingTimeStamp = 0;
 		quorum=0;
+		setThisAsPrimary();
+	}
+	
+	public void setThisAsPrimary() {
 		try {
 			cachedLocalIpAddress = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
@@ -25,7 +29,6 @@ public class ServerInfo implements Serializable {
 		}
 		this.serverIpList.add (cachedLocalIpAddress);
 	}
-	
 
 	public void addLast(String s){
 		serverIpList.addLast(s);
