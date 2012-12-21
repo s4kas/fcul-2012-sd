@@ -10,6 +10,7 @@ import org.sd.common.connection.Connection;
 import org.sd.common.connection.IConnection;
 import org.sd.common.messages.IMessage;
 import org.sd.server.ServerConfigProxy;
+import org.sd.server.ServerController;
 import org.sd.server.dispatcher.Dispatchable;
 import org.sd.server.dispatcher.ServerDispatcher;
 import org.sd.server.dispatcher.ConnectionDispatcher;
@@ -34,10 +35,14 @@ public class MessagePool extends Dispatchable {
 		//add a message to the queue
 		outgoingQueue.addLast(outgoingConnection);
 		
+		try {
+			ServerController.addToInfoConsole("Server - Sending message to: "+outgoingConnection.getSocket().getInetAddress());
+			ServerController.addToInfoConsole("Server - Message contains protocol: "+outgoingConnection.getMessage().getHeader());
+		} catch (Exception e) {	}
+		
 		//notify observers
 		notifyConnectionObservers();
 		
-		// TODO Auto-generated method stub
 		return true;
 	}
 	
@@ -46,14 +51,19 @@ public class MessagePool extends Dispatchable {
 		
 		for (String out : outList) {
 			try {
-				incomingQueue.add(new Connection(message, new Socket(out,port)));
+				outgoingQueue.addLast(new Connection(message, new Socket(out,port)));
+				
+				try {
+					ServerController.addToInfoConsole("Server - Sending message to: "+out);
+					ServerController.addToInfoConsole("Server - Message contains protocol: "+message.getHeader());
+				} catch (Exception e) {	}
 				
 				//notify observers
 				notifyConnectionObservers();
 			} catch (UnknownHostException e) {
-				//nao conheco este host
+				ServerController.addToInfoConsole("MessagePool - Whois "+out+":"+port+" ? Dunno!!!");
 			} catch (IOException e) {
-				//nao consegui ligar
+				ServerController.addToInfoConsole("MessagePool - Couldn't connect to: "+out+":"+port);
 			}
 		}
 	}
@@ -62,6 +72,11 @@ public class MessagePool extends Dispatchable {
 	public synchronized boolean postIncomingConnection(IConnection incomingConnection) {
 		//add a message to the queue
 		incomingQueue.addLast(incomingConnection);
+		
+		try {
+			ServerController.addToInfoConsole("Server - Received message from: "+incomingConnection.getSocket().getInetAddress());
+			ServerController.addToInfoConsole("Server - Message contains protocol: "+incomingConnection.getMessage().getHeader());
+		} catch (Exception e) {	}
 		
 		//warn the observers
 		notifyServerSideObservers();

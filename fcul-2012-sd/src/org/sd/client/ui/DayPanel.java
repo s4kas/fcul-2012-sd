@@ -362,7 +362,9 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro adicionar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
-		this.back.doClick();
+		
+		//back
+		back.doClick();
 	}
 	
 	private void removeEvent() {
@@ -393,10 +395,10 @@ public class DayPanel extends JPanel implements ActionListener {
 			}
 			Evento ev = eventos.get(index);
 			ClientController.deleteEvent(ev);
-			ClientController.updateRecentEvents("Client - Sent delete message");
 		}
 		
-		this.back.doClick();
+		//back
+		back.doClick();
 	}
 	
 	private void modifyEvent() {
@@ -425,7 +427,9 @@ public class DayPanel extends JPanel implements ActionListener {
 				    "Erro modificar evento",
 				    JOptionPane.ERROR_MESSAGE);
 		}
-		this.back.doClick();
+		
+		//back
+		back.doClick();
 	}
 	
 	private boolean validateFields() {

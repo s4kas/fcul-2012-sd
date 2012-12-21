@@ -3,7 +3,6 @@ package org.sd.server.dispatcher;
 import java.io.IOException;
 import java.net.*;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -132,7 +131,6 @@ public class DispatcherProcess extends Observable implements Runnable {
 		this.currentClientList = cl;
 		
 		protocol = currentConnection.getMessage().getHeader();
-		System.out.println(protocol + " - " + protocol);
 		
 		//Validate protocol content.
 		if (isProtocolValid(protocol,currentConnection.getMessage().getContent())){
@@ -180,7 +178,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 				} else {
 					reply = "Couldnt add, already exists or overlaps. you tring to add or alter?";
 				}
+				//output ok to add
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
+				//output list of events
+				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
 			break;
 			
 			//REQUEST_ALOG
@@ -206,7 +207,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 				} else {
 					reply = "Couldnt alter, not realy a substitution!";
 				}
+				//output ok to modidy
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
+				//output list of events
+				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
 			break;
 
 			case S_S_REQ_HS:
@@ -296,7 +300,10 @@ public class DispatcherProcess extends Observable implements Runnable {
 				} else {
 					reply = "Couldnt delete, cant find this evento! to delete.";
 				}
+				//output ok to delete
 				messagePool.postOutgoingConnection(new Connection(new S_C_RCV_AAD_MESSAGE(reply),currentConnection));
+				//output list of events
+				messagePool.postOutgoingConnection(new Connection(new A_RCV_AG_MESSAGE(thisAgenda),currentConnection));
 			break;
 		
 			case S_S_RCV_HS:

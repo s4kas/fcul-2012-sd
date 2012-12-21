@@ -3,17 +3,21 @@ package org.sd.server;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.util.regex.Pattern;
 
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.text.MaskFormatter;
 
 public class ServerController extends JFrame implements ActionListener {
 	
@@ -27,7 +31,7 @@ public class ServerController extends JFrame implements ActionListener {
 	private JScrollPane 									sp = new JScrollPane();
 	private ServerFacade 									runningServerFacade;
 	private JRadioButton 									primary, secondary;
-	private JTextField										secondaryAddress;
+	private JFormattedTextField								secondaryAddress;
 	private JLabel											secondaryAddressLabel;
 	
 	/***********************************************************************
@@ -72,7 +76,10 @@ public class ServerController extends JFrame implements ActionListener {
 		
 		//input for secondary server address
 		secondaryAddressLabel = new JLabel("Endereço do primário:");
-		secondaryAddress = new JTextField();
+		try {
+			secondaryAddress = new JFormattedTextField(new MaskFormatter("###.###.###.###"));
+		} catch (ParseException e) {
+		}
 		secondaryAddress.setEnabled(false);
 
 		//Definicao do layout das caixas
@@ -126,21 +133,37 @@ public class ServerController extends JFrame implements ActionListener {
 		if (this.primary.isSelected()) {
 			runningServerFacade.setIsPrimaryServer();
 		} else if (this.secondary.isSelected()) {
+			if (!isIPAddress(this.secondaryAddress.getText())) {
+				JOptionPane.showMessageDialog(null,"Introduzir ip válido.");
+				return;
+			}
 			runningServerFacade.addPrimaryServer(secondaryAddress.getText());
 		}
 		runningServerFacade.start();
 		addToInfoConsole("ServerFacede Initialized!");
+		this.primary.setEnabled(false);
+		this.secondary.setEnabled(false);
+		this.secondaryAddress.setEnabled(false);
 		this.stopButton.setEnabled(true);
 		this.stopButton.repaint();
 		this.startButton.setEnabled(false);
 		this.startButton.repaint();
 	}
 	
+	private boolean isIPAddress(String str) {  
+		  Pattern ipPattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");  
+		  return ipPattern.matcher(str).matches();  
+		}  
+	
 	public void stop() {
 		if (runningServerFacade != null) {
 			runningServerFacade.terminate();
 			addToInfoConsole("ServerFacede Terminated!");
 		}
+		this.primary.setEnabled(true);
+		this.primary.setSelected(true);
+		this.secondary.setEnabled(true);
+		this.secondaryAddress.setEnabled(true);
 		this.stopButton.setEnabled(false);
 		this.stopButton.repaint();
 		this.startButton.setEnabled(true);

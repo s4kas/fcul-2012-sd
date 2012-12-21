@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-
 import org.sd.io.IoOperations;
 import org.sd.io.Writable;
-import org.sd.server.ServerController;
 
 
 public class Agenda implements Serializable , Writable, IAgenda{
@@ -23,16 +21,6 @@ public class Agenda implements Serializable , Writable, IAgenda{
 		//loads agenda into memory
 		load();
 	}
-	
-	/************************************************************++
-	 * Dump agenda records
-	 */
-	public void agendaDump (){
-		for (Evento e: agenda){
-			ServerController.addToInfoConsole(e.toString());
-		}
-	}
-	
 	
 	public synchronized ArrayList<Evento> ListEventos (){
 		return agenda;
@@ -66,7 +54,10 @@ public class Agenda implements Serializable , Writable, IAgenda{
 				break;
 			}
 		}
-		if (!exists) agenda.add(newEvento);
+		if (!exists) {
+			agenda.add(newEvento);
+			save();
+		}
 		//returns false if not added.
 		//return true if added
 		return !exists;
@@ -92,7 +83,8 @@ public class Agenda implements Serializable , Writable, IAgenda{
 		if (temp!=null){
 			int index =agenda.indexOf(temp);
 			agenda.remove(index);
-			agenda.add(index, newEvento);	
+			agenda.add(index, newEvento);
+			save();
 		}
 		 
 		return temp!=null;

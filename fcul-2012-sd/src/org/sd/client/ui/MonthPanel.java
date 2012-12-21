@@ -27,6 +27,10 @@ public class MonthPanel extends JPanel implements ActionListener {
 	private Calendar calendar;
 	private DayFrame dayFrame;
 	
+	public DayFrame getDayFrame() {
+		return dayFrame;
+	}
+
 	public MonthPanel(int year, int month) {
 		c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -90,7 +94,6 @@ public class MonthPanel extends JPanel implements ActionListener {
 	}
 	
 	private void startDayFrame(String title, int day) {
-		System.out.println(dayFrame);
 		if (dayFrame != null) {
 			dayFrame.shutdown();
 		}

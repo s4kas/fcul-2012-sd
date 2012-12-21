@@ -16,7 +16,7 @@ public class ConnectionDispatcher implements IDispatcher {
 	public void update() {
 		IConnection outgoingConnection = messagePool.takeOutgoingConnection();
 		connectionPool.execute(new ConnectionWorker(outgoingConnection, WorkType.SEND));
-		waiting(5000);
+		waiting(2000);
 	}
 	
 	private void waiting(int mili) {

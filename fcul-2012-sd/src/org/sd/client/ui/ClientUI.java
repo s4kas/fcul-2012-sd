@@ -3,8 +3,6 @@ package org.sd.client.ui;
 import java.awt.Color;
 import java.awt.Frame;
 import java.util.Calendar;
-
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;

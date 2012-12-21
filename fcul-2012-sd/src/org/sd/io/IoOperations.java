@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.EOFException;
-
 import org.sd.data.Evento;
-import org.sd.server.ServerConfig;
 
 public class IoOperations {
 
