@@ -17,15 +17,15 @@ public class ServerInfo implements Serializable {
 	public ServerInfo(){
 		promotingTimeStamp = 0;
 		quorum=0;
-	}
-	
-	public void setThisAsPrimary() {
 		try {
 			cachedLocalIpAddress = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
 			System.exit(1);
 			e.printStackTrace();
 		}
+	}
+	
+	public void setThisAsPrimary() {
 		this.serverIpList.remove(cachedLocalIpAddress);
 		this.serverIpList.addFirst (cachedLocalIpAddress);
 	}
@@ -35,7 +35,11 @@ public class ServerInfo implements Serializable {
 	}
 	
 	public void overrideList(List<String> newList){
-		serverIpList = (LinkedList<String>) newList;
+		for (String server : newList) {
+			if (!serverIpList.contains(server)) {
+				serverIpList.add(server);
+			}
+		}
 	}
 	
 	public String getMyAddress(){
@@ -62,6 +66,17 @@ public class ServerInfo implements Serializable {
 	
 	public synchronized List <String> listOfServers(){
 		return serverIpList;
+	}
+	
+	public synchronized List <String> listOfServersWithoutMe(){
+		List<String> serverListWithouMe = new LinkedList<String>();
+		serverListWithouMe.addAll(serverIpList);
+		serverListWithouMe.remove(getMyAddress());
+		return serverListWithouMe;
+	}
+	
+	public synchronized boolean removePrimary(){
+		return serverIpList.remove(givePrimary());
 	}
 	
 	public synchronized Iterator<String> iteratorOfListOfServers (){

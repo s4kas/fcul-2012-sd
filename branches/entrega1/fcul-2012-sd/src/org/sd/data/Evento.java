@@ -122,8 +122,7 @@ public final class Evento implements Serializable ,Cloneable{
 		
 		return this.starts.equals(other.starts) &&
 				this.ends.equals(other.ends) &&
-				this.descript==other.descript &&
-				this.owner==other.owner;
+				this.descript==other.descript;
 	}
 	
 	

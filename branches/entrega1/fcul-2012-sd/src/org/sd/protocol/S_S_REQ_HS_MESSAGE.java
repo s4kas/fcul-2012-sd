@@ -8,7 +8,7 @@ public class S_S_REQ_HS_MESSAGE extends Message implements Serializable{
 	private static final long serialVersionUID = -26464047223846857L;
 	
 	public S_S_REQ_HS_MESSAGE() {
-		messageProtocol = Protocol.S_S_REQ_PROMO;
+		messageProtocol = Protocol.S_S_REQ_HS;
 	}
 	
 	public <T> T getContent() {

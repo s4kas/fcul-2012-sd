@@ -111,8 +111,9 @@ public class ClientController {
 	}
 	
 	public static void receiveAgenda(Agenda newAgenda) {
-		agenda = new Agenda();
+System.out.println("newReceiveAgenda:"+newAgenda.ListEventos());
 		agenda.ListEventos().addAll(newAgenda.ListEventos());
+System.out.println("agendaDoCliente:"+agenda.ListEventos());
 		ClientUI.updateCalendarFrame();
 	}
 

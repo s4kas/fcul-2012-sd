@@ -12,7 +12,7 @@ public class A_RCV_RDT_MESSAGE extends Message implements Serializable{
 	
 	public A_RCV_RDT_MESSAGE(String ip) {
 		this.timeStamp = new Date().getTime();
-		messageProtocol = Protocol.S_RCV_RDT;
+		messageProtocol = Protocol.A_RCV_RDT;
 	}
 	
 	@SuppressWarnings("unchecked")

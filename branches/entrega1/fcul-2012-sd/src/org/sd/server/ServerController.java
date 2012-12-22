@@ -3,6 +3,7 @@ package org.sd.server;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
 import java.text.ParseException;
 import java.util.regex.Pattern;
 
@@ -18,6 +19,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.text.MaskFormatter;
+
+import org.sd.common.connection.Connection;
+import org.sd.protocol.S_S_REQ_HS_MESSAGE;
+import org.sd.server.message.MessagePoolProxy;
 
 public class ServerController extends JFrame implements ActionListener {
 	
@@ -76,10 +81,7 @@ public class ServerController extends JFrame implements ActionListener {
 		
 		//input for secondary server address
 		secondaryAddressLabel = new JLabel("Endereço do primário:");
-		try {
-			secondaryAddress = new JFormattedTextField(new MaskFormatter("###.###.###.###"));
-		} catch (ParseException e) {
-		}
+		secondaryAddress = new JFormattedTextField("10.101.148.102");
 		secondaryAddress.setEnabled(false);
 
 		//Definicao do layout das caixas
@@ -130,16 +132,18 @@ public class ServerController extends JFrame implements ActionListener {
  	}
 	
 	public void start() {
-		if (this.primary.isSelected()) {
+		if (this.primary.isSelected()) {//primary
 			runningServerFacade.setIsPrimaryServer();
-		} else if (this.secondary.isSelected()) {
-			if (!isIPAddress(this.secondaryAddress.getText())) {
-				JOptionPane.showMessageDialog(null,"Introduzir ip válido.");
-				return;
-			}
+			runningServerFacade.start();
+		} else if (this.secondary.isSelected()) {//secondary
+			//if (!isIPAddress(this.secondaryAddress.getText())) {
+			//	JOptionPane.showMessageDialog(null,"Introduzir ip válido.");
+			//	return;
+			//}
 			runningServerFacade.addPrimaryServer(secondaryAddress.getText());
+			runningServerFacade.start();
+			sendHandShakeMessage();
 		}
-		runningServerFacade.start();
 		addToInfoConsole("ServerFacede Initialized!");
 		this.primary.setEnabled(false);
 		this.secondary.setEnabled(false);
@@ -148,6 +152,25 @@ public class ServerController extends JFrame implements ActionListener {
 		this.stopButton.repaint();
 		this.startButton.setEnabled(false);
 		this.startButton.repaint();
+	}
+	
+	private void sendHandShakeMessage() {
+		(new Thread() {
+			public void run() {
+				try {
+					//server port
+					int port = ServerConfigProxy.getConfig(false).getServerPort();
+					//handshakemessage
+					S_S_REQ_HS_MESSAGE message = new S_S_REQ_HS_MESSAGE();
+					//connection to primary
+					Connection connection = new Connection(message, new Socket(secondaryAddress.getText(),port));
+					//add message to message queue
+					MessagePoolProxy.getInstance().postOutgoingConnection(connection);
+				} catch (Exception e) {
+					addToInfoConsole("Server - Couldn't connect to : "+secondaryAddress.getText());
+				}
+			}
+		}).start();
 	}
 	
 	private boolean isIPAddress(String str) {  

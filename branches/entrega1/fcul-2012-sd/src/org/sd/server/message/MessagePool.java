@@ -48,7 +48,7 @@ public class MessagePool extends Dispatchable {
 	
 	public synchronized void postToAllServers(IMessage message, List<String> outList) {
 		int port = ServerConfigProxy.getConfig(false).getServerPort();
-		
+System.out.println("postToAllServers:"+outList);
 		for (String out : outList) {
 			try {
 				outgoingQueue.addLast(new Connection(message, new Socket(out,port)));
@@ -65,6 +65,26 @@ public class MessagePool extends Dispatchable {
 			} catch (IOException e) {
 				ServerController.addToInfoConsole("MessagePool - Couldn't connect to: "+out+":"+port);
 			}
+		}
+	}
+	
+	public synchronized void postToServer(IMessage message, String server) {
+		int port = ServerConfigProxy.getConfig(false).getServerPort();
+
+		try {
+			outgoingQueue.addLast(new Connection(message, new Socket(server,port)));
+			
+			try {
+				ServerController.addToInfoConsole("Server - Sending message to: "+server);
+				ServerController.addToInfoConsole("Server - Message contains protocol: "+message.getHeader());
+			} catch (Exception e) {	}
+	
+			//notify observers
+			notifyConnectionObservers();
+		} catch (UnknownHostException e) {
+			ServerController.addToInfoConsole("MessagePool - Whois "+server+":"+port+" ? Dunno!!!");
+		} catch (IOException e) {
+			ServerController.addToInfoConsole("MessagePool - Couldn't connect to: "+server+":"+port);
 		}
 	}
 

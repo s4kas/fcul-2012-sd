@@ -35,6 +35,7 @@ public class ClientConfig implements IConfig {
 	}
 	
 	public void setServer(String server) {
+		System.out.println(server);
 		if (clientProperties != null) {
 			StringBuffer out = new StringBuffer(server).append(",");
 			out.append(String.valueOf(clientProperties.get(CLIENT_ADDRESS)));

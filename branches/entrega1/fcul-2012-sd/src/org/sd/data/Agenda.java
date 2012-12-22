@@ -56,7 +56,6 @@ public class Agenda implements Serializable , Writable, IAgenda{
 		}
 		if (!exists) {
 			agenda.add(newEvento);
-			save();
 		}
 		//returns false if not added.
 		//return true if added
@@ -84,7 +83,6 @@ public class Agenda implements Serializable , Writable, IAgenda{
 			int index =agenda.indexOf(temp);
 			agenda.remove(index);
 			agenda.add(index, newEvento);
-			save();
 		}
 		 
 		return temp!=null;

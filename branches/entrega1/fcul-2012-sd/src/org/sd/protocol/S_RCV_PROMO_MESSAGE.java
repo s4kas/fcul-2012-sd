@@ -10,7 +10,7 @@ public class S_RCV_PROMO_MESSAGE extends Message implements Serializable{
 	private PromotionMessage pmsg;
 	
 	public S_RCV_PROMO_MESSAGE(PromotionMessage pmsg) {
-		messageProtocol = Protocol.S_C_RCV_AAD;
+		messageProtocol = Protocol.S_S_RCV_PROMO;
 		this.pmsg = pmsg; 
 	}
 	

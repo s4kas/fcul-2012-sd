@@ -3,7 +3,6 @@ package org.sd.client;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
 import org.sd.common.messages.IMessage;
 import org.sd.data.Agenda;
 import org.sd.protocol.Protocol;

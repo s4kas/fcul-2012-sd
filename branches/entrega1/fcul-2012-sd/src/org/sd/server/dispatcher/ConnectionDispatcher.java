@@ -16,6 +16,7 @@ public class ConnectionDispatcher implements IDispatcher {
 	public void update() {
 		IConnection outgoingConnection = messagePool.takeOutgoingConnection();
 		connectionPool.execute(new ConnectionWorker(outgoingConnection, WorkType.SEND));
+		System.out.println("ConnectionDispatcher:"+outgoingConnection.getMessage());
 		waiting(2000);
 	}
 	
