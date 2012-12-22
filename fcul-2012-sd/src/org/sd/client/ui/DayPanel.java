@@ -393,12 +393,14 @@ public class DayPanel extends JPanel implements ActionListener {
 					break;
 				}
 			}
+			
 			Evento ev = eventos.get(index);
-			ClientController.deleteEvent(ev);
+			if (!ClientController.deleteEvent(ev)) {
+				JOptionPane.showMessageDialog(null, "Não foi possível enviar" +
+						" o pedido de remoção de evento.");
+				return;
+			}
 		}
-		
-		//back
-		back.doClick();
 	}
 	
 	private void modifyEvent() {

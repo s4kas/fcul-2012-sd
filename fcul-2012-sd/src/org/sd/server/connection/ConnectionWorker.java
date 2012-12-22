@@ -33,6 +33,7 @@ public class ConnectionWorker implements Runnable {
 
 	public void sendMessage() {			
 		try {
+			
 			//get the message
 			IMessage messageToSend = workingConnection.getMessage();
 		
